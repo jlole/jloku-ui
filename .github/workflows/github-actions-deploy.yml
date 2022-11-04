@@ -10,5 +10,5 @@ jobs:
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v2
-    - name: Build
-      run: npm run build
+    - name: Install and build
+      run: npm install && npm run build
