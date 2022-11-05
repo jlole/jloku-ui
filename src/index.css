@@ -42,27 +42,58 @@ ol, ul {
 
 .game {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.game-info {
-  margin-left: 20px;
+.game-board, .game-controls{
+  align-self: center;
+  position: relative;
 }
 
+.control-numbers {
+  font-size: 4rem;
+  display: flex;
+  margin-top: 30px;
+}
 
-
-
+.control-numbers .control-number{
+  padding: 10px;
+}
 
 table.game-board td {
   font-size: 2rem;
   width: 80px;
   height: 80px;
   text-align: center;
+  cursor: pointer;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+     -moz-user-select: none; /* Old versions of Firefox */
+      -ms-user-select: none; /* Internet Explorer/Edge */
+          user-select: none; /* Non-prefixed version, currently
+                                supported by Chrome, Edge, Opera and Firefox */
+}
+
+.control-number{
+  cursor: pointer;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+     -moz-user-select: none; /* Old versions of Firefox */
+      -ms-user-select: none; /* Internet Explorer/Edge */
+          user-select: none; /* Non-prefixed version, currently
+                                supported by Chrome, Edge, Opera and Firefox */ 
 }
 
 table.game-board, table.game-board td {
   border: 1px solid black;
   border-collapse: collapse;
+}
+
+table.game-board td:not(.given-number) {
+  color: #8b2bf2;
 }
 
 table.game-board tr:nth-child(1) td {
@@ -122,4 +153,18 @@ table.game-board tr:nth-child(4) td:nth-child(3) {
   border-bottom-width: 5px;
   border-left-width: 5px;
   border-right-width: 5px;
+}
+
+.selected-tile{
+  background-color: #00f1f43d;
+}
+
+.start-game{
+  background: #000000eb;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
 }

@@ -2,53 +2,47 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 
-function Square(props) {
+function Tile(props) {
   return (
-    <td className={"tile"} onClick={props.onClick}>
-      {props.value}
-    </td>
+    <td className={"tile"} onClick={props.onClick} id={'tile-'+props.id}></td>
+  );
+}
+
+function Number(props) {
+  return (
+    <div className="control-number" onClick={props.onClick} id={'number-'+props.id}>{props.id}</div>
   );
 }
 
 class Board extends React.Component {
   renderSquare(i) {
     return (
-      <Square
-        value={this.props.squares[i]}
-        // onClick={() => this.props.onClick(i)}
+      <Tile
+        onClick={() => this.props.onClick(i)}
+        id={i}
       />
     );
   }
 
-
+  componentDidMount() {
+    fetch('/api/get_daily_board')
+    .then((response) => response.json())
+    .then((data) => {
+      let tiles = document.querySelectorAll('.game-board td')
+      data.map((v,row)=>{
+        v.map( ( value,col ) => {
+          if ( value != 0 ) {
+            let tile = tiles[(row * 5)+col]
+            tile.innerHTML = value
+            tile.classList.add('given-number')
+          }
+        });
+      })
+    });
+  }
 
   render() {
-
-    // fetch('/api/get_daily_board')
-    fetch('/api/generate_board')
-      .then((response) => response.json())
-      .then((data) => {
-        // console.log(data)
-        console.log( document.querySelectorAll('.game-board td') )
-        let tiles = document.querySelectorAll('.game-board td')
-        data.map((v,row)=>{
-          v.map( ( value,col ) => {
-            if ( value != 0 ) {
-              tiles[(row * 5)+col].innerHTML = value
-            }
-            
-            // 
-
-
-            console.log( '(' + row + ', ' + col + ') ' + value )
-          });
-          // console.log(v)
-          // console.log(i)
-        })
-      });
-
     return (
-
       <table className='game-board'>
         <tbody>
           <tr>
@@ -92,89 +86,64 @@ class Board extends React.Component {
   }
 }
 
-class Game extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      history: [
-        {
-          squares: Array(9).fill(null)
-        }
-      ],
-      stepNumber: 0,
-      xIsNext: true
-    };
-  }
-
-  handleClick(i) {
-    const history = this.state.history.slice(0, this.state.stepNumber + 1);
-    const current = history[history.length - 1];
-    const squares = current.squares.slice();
-    if (calculateWinner(squares) || squares[i]) {
-      return;
-    }
-    squares[i] = this.state.xIsNext ? "X" : "O";
-    this.setState({
-      history: history.concat([
-        {
-          squares: squares
-        }
-      ]),
-      stepNumber: history.length,
-      xIsNext: !this.state.xIsNext
-    });
-  }
-
-  jumpTo(step) {
-    this.setState({
-      stepNumber: step,
-      xIsNext: (step % 2) === 0
-    });
+class Controls extends React.Component {
+  renderNumber(i) {
+    return (
+      <Number
+        onClick={() => this.props.onClick(i)}
+        id={i}
+      />
+    );
   }
 
   render() {
-    // fetch('/api/get_daily_board')
-    //   .then((response) => response.json())
-    //   .then((data) => console.log(data));
-    // fetch('/api').then(
-    //   ( res ) => {
-    //     console.log( res );
-    //   }
-    // )
-    const history = this.state.history;
-    const current = history[this.state.stepNumber];
-    const winner = calculateWinner(current.squares);
+    return (
+      <div className="control-numbers">
+        {this.renderNumber(1)}
+        {this.renderNumber(2)}
+        {this.renderNumber(3)}
+        {this.renderNumber(4)}
+        {this.renderNumber(5)}
+        {this.renderNumber('E')}
+      </div>
+    );
+  }
+}
 
-    const moves = history.map((step, move) => {
-      const desc = move ?
-        'Go to move #' + move :
-        'Go to game start';
-      return (
-        <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
-        </li>
-      );
-    });
+class Game extends React.Component {
+  
+  handleClick(i) {
+    let selected_tile = document.querySelector('.selected-tile')
+    selected_tile && selected_tile.classList.remove('selected-tile')
+    let tile = document.getElementById('tile-' + i)
+    tile && tile.classList.add('selected-tile')
+  }
 
-    let status;
-    if (winner) {
-      status = "Winner: " + winner;
-    } else {
-      status = "Next player: " + (this.state.xIsNext ? "X" : "O");
+  handleClickControls(i) {
+    let selected_tile = document.querySelector('.selected-tile')
+    if ( ! selected_tile.classList.contains('given-number') ) {
+      if ( i == 'E' ) {
+        selected_tile.innerHTML = ''
+      } else {
+        selected_tile.innerHTML = i
+      }
     }
+  }
 
+  render() {
     return (
       <div className="game">
         <div className="game-board">
+        {/* <div className='start-game'></div> */}
           <Board
-            squares={current.squares}
             onClick={i => this.handleClick(i)}
           />
         </div>
-        {/* <div className="game-info">
-          <div>{status}</div>
-          <ol>{moves}</ol>
-        </div> */}
+        <div className="game-controls">
+          <Controls
+            onClick={i => this.handleClickControls(i)}
+          />
+        </div>
       </div>
     );
   }
@@ -184,23 +153,3 @@ class Game extends React.Component {
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<Game />);
-
-function calculateWinner(squares) {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6]
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
-  }
-  return null;
-}
