@@ -61,6 +61,11 @@ ol, ul {
   padding: 10px;
 }
 
+.control-numbers .control-number.disabled{
+  color: #747373;
+  cursor:default;
+}
+
 table.game-board td {
   font-size: 2rem;
   width: 80px;
@@ -167,4 +172,15 @@ table.game-board tr:nth-child(4) td:nth-child(3) {
   left: 0;
   right: 0;
   z-index: 1;
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  justify-content: space-around;
+}
+
+nav ul li{
+  padding: 5px;
 }
