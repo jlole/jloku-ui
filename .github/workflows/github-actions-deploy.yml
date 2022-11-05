@@ -11,4 +11,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install and build
-      run: npm install && npm run build
+      run: CI=false npm install && npm run build
