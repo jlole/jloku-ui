@@ -23,10 +23,6 @@ const Game = ({difficulty}) => {
     }
   }, [editMode])
 
-  const ll = l => {
-    console.log('HEKL')
-  }
-
   // Load the puzzle
   useEffect( () => {
     const controller = new AbortController();
@@ -56,13 +52,8 @@ const Game = ({difficulty}) => {
     toggle_number_controls();
     return () => {
       controller.abort();
-      console.log('s');
     }
   }, [])
-
-  useEffect( ()=>{
-    console.log('editMode: ' + editMode);
-  }, [editMode])
 
   const keypressTile = (e) => {
     if("12345".includes(e.key)){ 
@@ -99,9 +90,6 @@ const Game = ({difficulty}) => {
     let tile = document.getElementById('tile-' + i)
     tile && tile.classList.add('selected-tile')
     toggle_number_controls()
-  }
-
-  const click_timer = i => {
   }
 
   const clickControl = i => {
@@ -144,7 +132,7 @@ const Game = ({difficulty}) => {
   return (
     <div className="game">
       <Dialog />
-      <Timer onClick={i => click_timer(i)} />
+      <Timer />
       <div className="game-board">
         <Board
           onClick={i => click_tile(i)}

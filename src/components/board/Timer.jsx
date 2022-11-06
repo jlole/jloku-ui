@@ -8,9 +8,9 @@ function Timer(props) {
   const [seconds, setSeconds] = useState(0)
   const [timerRunning, setTimerRunning] = useState(true)
 
-  // const toggle = () => {
-  //   setTimerRunning(!timerRunning);
-  // }
+  const toggleTimer = () => {
+    setTimerRunning(!timerRunning);
+  }
 
   // const startTimer = () => {
   //   setTimerRunning(true);
@@ -40,7 +40,7 @@ function Timer(props) {
 
   return (
     <div className='game-timer'>
-      {visualTime(seconds)} <span className='game-timer-pause'><BsPauseFill onClick={() => props.onClick()} /></span>
+      {visualTime(seconds)} <span className='game-timer-pause'><BsPauseFill onClick={() => toggleTimer()} /></span>
     </div>
   );
 }
