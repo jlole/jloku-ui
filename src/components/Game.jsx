@@ -1,6 +1,7 @@
 
 import React from 'react';
 import Board from './board/Board'
+import Dialog from './board/Dialog';
 import { useEffect } from 'react';
 import ControlArea from './board/ControlArea'
 import {getApiGameUrl, numberIsFullyUsed} from '../functions';
@@ -19,7 +20,10 @@ const Game = ({difficulty}) => {
     toggle_number_controls();
     let game_url = getApiGameUrl(difficulty)
 
-    fetch(game_url)
+    const controller = new AbortController();
+    const signal = controller.signal
+
+    fetch(game_url, {signal})
     .then((response) => response.json())
     .then((data) => {
       let tiles = document.querySelectorAll('.game-board td')
@@ -32,10 +36,12 @@ const Game = ({difficulty}) => {
           }
         });
       })
+      document.querySelector('.game-loader').classList.remove('show')
     });
 
     return () => {
       document.removeEventListener('keydown', keyEventCallback);
+      controller.abort();
     }
   })
 
@@ -54,7 +60,6 @@ const Game = ({difficulty}) => {
     } else if (e.key === 'Backspace') {
       click_control('E')
     }
-    console.log( e.key )
   }
 
   const toggle_number_controls = () => {
@@ -75,9 +80,6 @@ const Game = ({difficulty}) => {
     }
   }
 
-  const check_number_used = i => {
-    console.log('hi');
-  }
 
   const click_tile = i => {
     let selected_tile = document.querySelector('.selected-tile')
@@ -101,8 +103,8 @@ const Game = ({difficulty}) => {
 
   return (
     <div onKeyPress={e => keypress_tile(e)} className="game">
+      <Dialog />
       <div className="game-board" onKeyPress={e => keypress_tile(e)}>
-      {/* <div className='start-game'></div> */}
         <Board
           onClick={i => click_tile(i)}
         />
