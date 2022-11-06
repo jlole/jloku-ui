@@ -5,7 +5,7 @@ class ControlArea extends React.Component {
   renderNumber(i) {
     return (
       <Control
-        onClick={() => this.props.onClick(i)}
+        onClick={i => this.props.onClick(i)}
         id={i}
         key={i}
         editMode={this.props.editMode}

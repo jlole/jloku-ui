@@ -70,7 +70,6 @@ const Game = ({difficulty}) => {
       clickControl('N')
     }
 
-
     if ( e.code === 'ArrowLeft' ) {
       if ( selectedTile % 5 === 0 ) {
         setSelectedTile( selectedTile => selectedTile + 4 )
@@ -101,9 +100,9 @@ const Game = ({difficulty}) => {
   useEffect( () => {
     if ( givenPuzzle ) {
       setSelectedIsGiven(givenPuzzle.charAt(selectedTile) !== '0')
-      console.log(selectedTile + ' '  + (givenPuzzle.charAt(selectedTile) !== '0'));
     }
   }, [selectedTile])
+
   const click_tile = (i) => {
     setSelectedTile(i)
   }
@@ -114,23 +113,28 @@ const Game = ({difficulty}) => {
     setNotes( notesCopy )
   }
 
-  const clickControl = i => {
+  const clickControl = e => {
+    let i = e
+
+    if ( typeof( e ) === 'object' ) {
+      i = e.target.dataset.key
+    }
+
     if ( i === 'N' ) { // Toggle note mode
       setEditMode( editMode => ! editMode )
     } else if ( selectedTile !== false && selectedIsGiven === false ) {
       if ( i === 'E' ) { // Erase field
-        setCurrentPuzzle(currentPuzzle.replaceAt(selectedTile, '0'))
+        setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, '0'))
         eraseNotesFromTile()
       } else if ("12345".includes(i)) {
         if ( editMode ) {
-          setCurrentPuzzle(currentPuzzle.replaceAt(selectedTile, '0'))
+          setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, '0'))
           let notesCopy = [...notes]
           let currentNote = notesCopy[selectedTile].charAt(i-1)
           notesCopy[selectedTile] = notesCopy[selectedTile].replaceAt(i - 1, currentNote === '0' ? i : '0' )
           setNotes( notesCopy )
         } else {
-          setCurrentPuzzle(currentPuzzle.replaceAt(selectedTile, i))
-          console.log( currentPuzzle )
+          setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, i))
         }
       }
     }
