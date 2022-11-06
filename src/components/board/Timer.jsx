@@ -9,16 +9,22 @@ function Timer(props) {
   const [timerRunning, setTimerRunning] = useState(true)
 
   const toggleTimer = () => {
-    setTimerRunning(!timerRunning);
+    setTimerRunning(!timerRunning && props.solved === false);
   }
 
-  // const startTimer = () => {
-  //   setTimerRunning(true);
-  // }
+  useEffect( () => {
+    if ( props.solved ) {
+      stopTimer()
+    }
+  }, [props.solved])
 
-  // const stopTimer = () => {
-  //   setTimerRunning(false);
-  // }
+  const startTimer = () => {
+    setTimerRunning(true);
+  }
+
+  const stopTimer = () => {
+    setTimerRunning(false);
+  }
 
   useEffect(() => {
     let interval = null;

@@ -10,7 +10,24 @@ import {getApiGameUrl, numberIsFullyUsed} from '../functions';
 const Game = ({difficulty}) => {
 
   const [editMode, setEditMode] = useState(false);
-  const [puzzleCode, setPuzzleCode] = useState(null);
+  const [selectedTile, setSelectedTile] = useState(false);
+
+  const [selectedIsGiven, setSelectedIsGiven] = useState(false);
+
+  const [givenPuzzle, setGivenPuzzle] = useState(null);
+  const [currentPuzzle, setCurrentPuzzle] = useState(null);
+  const [solution, setSolution] = useState(null);
+  
+  const [notes, setNotes] = useState(new Array(25).fill('00000'));
+
+  const [solved, setSolved] = useState(false);
+
+  useEffect( () => {
+    if ( currentPuzzle && solution && currentPuzzle === solution ) {
+      alert('You solved it!')
+      setSolved(true)
+    }
+  }, [currentPuzzle])
 
   // Keypress event listener
   useEffect( () => {
@@ -21,35 +38,24 @@ const Game = ({difficulty}) => {
     return () => {
       document.removeEventListener('keydown', keyEventCallback);
     }
-  }, [editMode])
+  })
 
   // Load the puzzle
   useEffect( () => {
     const controller = new AbortController();
     const signal = controller.signal
-
-    let game_url = getApiGameUrl(difficulty)
+    const game_url = getApiGameUrl(difficulty)
     fetch(game_url, {signal})
     .then((response) => response.json())
     .then((data) => {
-      // setPuzzleCode(data.puzzle)
-      let puzzle = data.puzzle
-      let row = null
-      let col = null
-      let tiles = document.querySelectorAll('.game-board td')
-      for ( var i = 0; i < puzzle.length; i++ ) {
-        row = Math.floor(i / 5)
-        col = i % 5
-        let tile = tiles[(row * 5) + col]
-        if ( puzzle.charAt(i) !== '0' ) {
-          tile.children.namedItem('tile-entry-'+tile.dataset.key).innerHTML = puzzle.charAt(i)
-          tile.classList.add('given-number')
-        }
-      }
+      const puzzle = data.puzzle
+      const solution = data.solution
+      setCurrentPuzzle(puzzle)
+      setGivenPuzzle(puzzle)
+      setSolution(solution)
       document.querySelector('.game-loader').classList.remove('show')
     });
 
-    toggle_number_controls();
     return () => {
       controller.abort();
     }
@@ -63,85 +69,93 @@ const Game = ({difficulty}) => {
     } else if (e.code === 'Space') {
       clickControl('N')
     }
-  }
 
-  const toggle_number_controls = () => {
-    let numbers = document.querySelectorAll('.control-number:not(#number-N)')
-    if ( numbers ) {
-      let disable_buttons = document.querySelector('.selected-tile:not(.given-number)') === null
-      numbers.forEach( numberTile => {
-        if ( disable_buttons ) {
-          numberTile.classList.add('disabled')
-        } else {
-          if ( numberIsFullyUsed( numberTile.dataset.key ) ) {
-            numberTile.classList.add('disabled')
-          } else {
-            numberTile.classList.remove('disabled')
-          }
-        }
-      })
+
+    if ( e.code === 'ArrowLeft' ) {
+      if ( selectedTile % 5 === 0 ) {
+        setSelectedTile( selectedTile => selectedTile + 4 )
+      } else {
+        setSelectedTile( selectedTile => selectedTile - 1 )
+      }
+    } else if ( e.code === 'ArrowRight' ) {
+      if ( selectedTile % 5 === 4 ) {
+        setSelectedTile( selectedTile => selectedTile - 4 )
+      } else {
+        setSelectedTile( selectedTile => selectedTile + 1 )
+      }
+    } else if ( e.code === 'ArrowUp' ) {
+      if ( selectedTile < 5 ) {
+        setSelectedTile( selectedTile => selectedTile + 20 )
+      } else {
+        setSelectedTile( selectedTile => selectedTile - 5 )
+      }
+    } else if ( e.code === 'ArrowDown' ) {
+      if ( selectedTile > 19 ) {
+        setSelectedTile( selectedTile => selectedTile - 20 )
+      } else {
+        setSelectedTile( selectedTile => selectedTile + 5 )
+      }
     }
   }
 
-
+  useEffect( () => {
+    if ( givenPuzzle ) {
+      setSelectedIsGiven(givenPuzzle.charAt(selectedTile) !== '0')
+      console.log(selectedTile + ' '  + (givenPuzzle.charAt(selectedTile) !== '0'));
+    }
+  }, [selectedTile])
   const click_tile = (i) => {
-    let selected_tile = document.querySelector('.selected-tile')
-    selected_tile && selected_tile.classList.remove('selected-tile')
-    let tile = document.getElementById('tile-' + i)
-    tile && tile.classList.add('selected-tile')
-    toggle_number_controls()
+    setSelectedTile(i)
+  }
+
+  const eraseNotesFromTile = () => {
+    let notesCopy = [...notes]
+    notesCopy[selectedTile] = '00000'
+    setNotes( notesCopy )
   }
 
   const clickControl = i => {
-    let selected_tile = document.querySelector('.selected-tile')
-
-    if ( i === 'N' ) {
+    if ( i === 'N' ) { // Toggle note mode
       setEditMode( editMode => ! editMode )
-      if ( editMode ) {
-        document.getElementById('number-N').classList.add('active')
-      } else {
-        document.getElementById('number-N').classList.remove('active')
-      }
-    } else if ( selected_tile && ! selected_tile.classList.contains('given-number') ) {
-      if ( i === 'E' ) {
-        let entry = document.querySelector('.selected-tile .entry')
-        entry.innerHTML = ''
-        let notes = selected_tile.children.namedItem('tile-notes-' + selected_tile.dataset.key).children
-        Array.from(notes).forEach(el=>{
-          el.classList.remove('show')
-        });
-      } else if ( "12345".includes(i) ) {
+    } else if ( selectedTile !== false && selectedIsGiven === false ) {
+      if ( i === 'E' ) { // Erase field
+        setCurrentPuzzle(currentPuzzle.replaceAt(selectedTile, '0'))
+        eraseNotesFromTile()
+      } else if ("12345".includes(i)) {
         if ( editMode ) {
-          let note = document.querySelector('.selected-tile .notes .note-' + i)
-          note.classList.toggle('show')
-          let entry = document.querySelector('.selected-tile .entry')
-          entry.innerHTML = ''
+          setCurrentPuzzle(currentPuzzle.replaceAt(selectedTile, '0'))
+          let notesCopy = [...notes]
+          let currentNote = notesCopy[selectedTile].charAt(i-1)
+          notesCopy[selectedTile] = notesCopy[selectedTile].replaceAt(i - 1, currentNote === '0' ? i : '0' )
+          setNotes( notesCopy )
         } else {
-          let notes = selected_tile.children.namedItem('tile-notes-' + selected_tile.dataset.key).children
-          Array.from(notes).forEach(el=>{
-            el.classList.remove('show')
-          });
-          let entry = document.querySelector('.selected-tile .entry')
-          entry.innerHTML = i
+          setCurrentPuzzle(currentPuzzle.replaceAt(selectedTile, i))
+          console.log( currentPuzzle )
         }
       }
     }
-    toggle_number_controls()
   }
 
   return (
     <div className="game">
       <Dialog />
-      <Timer />
+      <Timer solved={solved} />
       <div className="game-board">
         <Board
           onClick={i => click_tile(i)}
+          currentPuzzle={currentPuzzle}
+          givenPuzzle={givenPuzzle}
+          selectedTile={selectedTile}
+          notes={notes}
         />
       </div>
       <div className="game-controls">
         <ControlArea
           onClick={i => clickControl(i)}
           editMode={editMode}
+          currentPuzzle={currentPuzzle}
+          selectedIsGiven={selectedIsGiven}
+          selectedTile={selectedTile}
         />
       </div>
     </div>

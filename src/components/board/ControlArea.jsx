@@ -9,6 +9,8 @@ class ControlArea extends React.Component {
         id={i}
         key={i}
         editMode={this.props.editMode}
+        selectedIsGiven={this.props.selectedIsGiven}
+        selectedTile={this.props.selectedTile}
       />
     );
   }

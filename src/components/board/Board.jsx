@@ -3,53 +3,38 @@ import Tile from './Tile';
 
 const Board = props => {
   
-  const renderSquare = (i) => {
+  const renderSquare = (id, value, given) => {
     return (
       <Tile
-        onClick={() => props.onClick(i)}
-        id={i}
+        onClick={() => props.onClick(id)}
+        selectedTile={props.selectedTile === id}
+        notes={props.notes}
+        value={value}
+        key={id}
+        id={id}
+        given={given}
       />
     );
+  }
+
+  if ( props.currentPuzzle ) {
+    var rows = []
+    for ( let i = 0; i < 5; i++ ) {
+      let cols = []
+      for ( let j = 0; j < 5; j++ ) {
+        let index = (i * 5) + j
+        let value = props.currentPuzzle.charAt(index)
+        let given = props.givenPuzzle.charAt(index) !== '0'
+        cols.push(renderSquare(index, value, given))
+      }
+      rows.push((<tr key={i}>{cols}</tr>))
+    }
   }
 
   return (
     <table className='game-board'>
       <tbody>
-        <tr>
-          {renderSquare(0)}
-          {renderSquare(1)}
-          {renderSquare(2)}
-          {renderSquare(3)}
-          {renderSquare(4)}
-        </tr>
-        <tr>
-          {renderSquare(5)}
-          {renderSquare(6)}
-          {renderSquare(7)}
-          {renderSquare(8)}
-          {renderSquare(9)}
-        </tr>
-        <tr>
-          {renderSquare(10)}
-          {renderSquare(11)}
-          {renderSquare(12)}
-          {renderSquare(13)}
-          {renderSquare(14)}
-        </tr>
-        <tr>
-          {renderSquare(15)}
-          {renderSquare(16)}
-          {renderSquare(17)}
-          {renderSquare(18)}
-          {renderSquare(19)}
-        </tr>
-        <tr>
-          {renderSquare(20)}
-          {renderSquare(21)}
-          {renderSquare(22)}
-          {renderSquare(23)}
-          {renderSquare(24)}
-        </tr>
+        {rows}
       </tbody>
     </table>
   );
