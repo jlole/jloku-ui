@@ -113,13 +113,7 @@ const Game = ({difficulty}) => {
     setNotes( notesCopy )
   }
 
-  const clickControl = e => {
-    let i = e
-
-    if ( typeof( e ) === 'object' ) {
-      i = e.target.dataset.key
-    }
-
+  const clickControl = i => {
     if ( i === 'N' ) { // Toggle note mode
       setEditMode( editMode => ! editMode )
     } else if ( selectedTile !== false && selectedIsGiven === false ) {

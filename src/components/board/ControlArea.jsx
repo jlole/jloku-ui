@@ -1,31 +1,30 @@
 import React from 'react';
 import Control from './Control'
 
-class ControlArea extends React.Component {
-  renderNumber(i) {
+const ControlArea = props => {
+  const renderNumber = i => {
     return (
       <Control
-        onClick={i => this.props.onClick(i)}
+        onClick={() => props.onClick(i)}
         id={i}
         key={i}
-        editMode={this.props.editMode}
-        selectedIsGiven={this.props.selectedIsGiven}
-        selectedTile={this.props.selectedTile}
+        editMode={props.editMode}
+        selectedIsGiven={props.selectedIsGiven}
+        selectedTile={props.selectedTile}
       />
     );
   }
 
-  render() {
-    let buttons = [];
-    for (let i = 1; i <= 5; i++) {
-      buttons.push(this.renderNumber(i));
-    }
-    buttons.push(this.renderNumber('E'));
-    buttons.push(this.renderNumber('N'));
-    return (
-      <div className="control-numbers">{buttons}</div>
-    );
+  let buttons = [];
+  for (let i = 1; i <= 5; i++) {
+    buttons.push(renderNumber(i));
   }
+  buttons.push(renderNumber('E'));
+  buttons.push(renderNumber('N'));
+  
+  return (
+    <div className="control-numbers">{buttons}</div>
+  )
 }
 
 export default ControlArea

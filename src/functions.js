@@ -22,5 +22,6 @@ export function numberIsFullyUsed( number ) {
 }
 
 String.prototype.replaceAt = function(index, replacement) {
+  replacement = replacement + ''
   return this.substring(0, index) + replacement + this.substring(index + replacement.length);
 }
