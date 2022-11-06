@@ -15,4 +15,4 @@ jobs:
       env:
         CI: ""
     - name: Rsync files
-      run: rsync -aq --delete ./build/ /var/www/jloku-ui
+      run: rsync -aq --delete ./build/ /home/jloku/jloku
