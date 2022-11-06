@@ -1,12 +1,12 @@
 import React from 'react'
 import Tile from './Tile';
 
-const Board = _ => {
+const Board = props => {
   
   const renderSquare = (i) => {
     return (
       <Tile
-        onClick={() => _.onClick(i)}
+        onClick={() => props.onClick(i)}
         id={i}
       />
     );

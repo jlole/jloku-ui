@@ -8,6 +8,7 @@ class ControlArea extends React.Component {
         onClick={() => this.props.onClick(i)}
         id={i}
         key={i}
+        editMode={this.props.editMode}
       />
     );
   }
@@ -18,6 +19,7 @@ class ControlArea extends React.Component {
       buttons.push(this.renderNumber(i));
     }
     buttons.push(this.renderNumber('E'));
+    buttons.push(this.renderNumber('N'));
     return (
       <div className="control-numbers">{buttons}</div>
     );

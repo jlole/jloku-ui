@@ -1,6 +1,7 @@
 import React from 'react';
 import { useEffect } from 'react';
 import { useState } from 'react';
+import { BsPauseFill } from "react-icons/bs";
 
 function Timer(props) {
 
@@ -39,7 +40,7 @@ function Timer(props) {
 
   return (
     <div className='game-timer'>
-      {visualTime(seconds)}
+      {visualTime(seconds)} <span className='game-timer-pause'><BsPauseFill onClick={() => props.onClick()} /></span>
     </div>
   );
 }
