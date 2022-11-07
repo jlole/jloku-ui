@@ -26,11 +26,12 @@ const Game = ({difficulty}) => {
 
     if ( currentPuzzle ) {
       let disabledNumbers = ''
-      for( let i = 0; i < 5; i++ ) {
+      for( let i = 1; i <= 5; i++ ) {
         if ((currentPuzzle.split(i).length - 1) === 5) {
           disabledNumbers += i + ''
         }
       }
+
       setDisabledNumbers( disabledNumbers )
       localStorage.setItem('givenPuzzle-' + difficulty, givenPuzzle)
       localStorage.setItem('currentPuzzle-' + difficulty, currentPuzzle)
