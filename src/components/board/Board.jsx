@@ -17,18 +17,19 @@ const Board = props => {
     );
   }
 
-  if ( props.currentPuzzle ) {
-    var rows = []
-    for ( let i = 0; i < 5; i++ ) {
-      let cols = []
-      for ( let j = 0; j < 5; j++ ) {
-        let index = (i * 5) + j
-        let value = props.currentPuzzle.charAt(index)
-        let given = props.givenPuzzle.charAt(index) !== '0'
-        cols.push(renderSquare(index, value, given))
-      }
-      rows.push((<tr key={i}>{cols}</tr>))
+  let _currentPuzzle = props.currentPuzzle ? props.currentPuzzle : '0000000000000000000000000'
+  let _givenPuzzle = props.givenPuzzle ? props.givenPuzzle : '0000000000000000000000000'
+
+  var rows = []
+  for ( let i = 0; i < 5; i++ ) {
+    let cols = []
+    for ( let j = 0; j < 5; j++ ) {
+      let index = (i * 5) + j
+      let value = _currentPuzzle.charAt(index)
+      let given = _givenPuzzle.charAt(index) !== '0'
+      cols.push(renderSquare(index, value, given))
     }
+    rows.push((<tr key={i}>{cols}</tr>))
   }
 
   return (
