@@ -137,7 +137,7 @@ const Game = ({difficulty}) => {
     if ( i === 'N' ) { // Toggle note mode
       setEditMode( editMode => ! editMode )
     } else if ( selectedTile !== false && selectedIsGiven === false ) {
-      if ( i === 'E' ) { // Erase field
+      if ( i === 'E' && solved === false ) { // Erase field
         setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, '0'))
         eraseNotesFromTile()
       } else if ("12345".includes(i)) {
