@@ -18,9 +18,9 @@ function Timer(props) {
     }
   }, [props.solved])
 
-  const startTimer = () => {
-    setTimerRunning(true);
-  }
+  // const startTimer = () => {
+  //   setTimerRunning(true);
+  // }
 
   const stopTimer = () => {
     setTimerRunning(false);
@@ -45,7 +45,7 @@ function Timer(props) {
   }
 
   return (
-    <div className='game-timer'>
+    <div className='game-timer no-select'>
       {visualTime(seconds)} <span className='game-timer-pause'><BsPauseFill onClick={() => toggleTimer()} /></span>
     </div>
   );

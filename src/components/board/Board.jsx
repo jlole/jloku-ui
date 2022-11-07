@@ -32,7 +32,7 @@ const Board = props => {
   }
 
   return (
-    <table className='game-board'>
+    <table className='game-board no-select'>
       <tbody>
         {rows}
       </tbody>

@@ -4,7 +4,7 @@ import Dialog from './board/Dialog';
 import Timer from "./board/Timer"
 import { useEffect, useState } from 'react';
 import ControlArea from './board/ControlArea'
-import {getApiGameUrl, numberIsFullyUsed} from '../functions';
+import {getApiGameUrl} from '../functions';
 
 
 const Game = ({difficulty}) => {
@@ -35,8 +35,9 @@ const Game = ({difficulty}) => {
       localStorage.setItem('givenPuzzle-' + difficulty, givenPuzzle)
       localStorage.setItem('currentPuzzle-' + difficulty, currentPuzzle)
       localStorage.setItem('solution-' + difficulty, solution)
+      localStorage.setItem('notes-' + difficulty, JSON.stringify(notes))
     }
-  }, [currentPuzzle])
+  }, [currentPuzzle, solution, difficulty, givenPuzzle, notes])
 
   // Keypress event listener
   useEffect( () => {
@@ -51,34 +52,33 @@ const Game = ({difficulty}) => {
 
   // Load the puzzle
   useEffect( () => {
-    const controller = new AbortController();
-    
     let _givenPuzzle = localStorage.getItem('givenPuzzle-' + difficulty)
     let _currentPuzzle = localStorage.getItem('currentPuzzle-' + difficulty)
     let _solution = localStorage.getItem('solution-' + difficulty)
-    if ( _givenPuzzle && _currentPuzzle && _solution ) {
+    let _notes = localStorage.getItem('notes-' + difficulty)
+    if ( _givenPuzzle && _currentPuzzle && _solution && _notes ) {
       setCurrentPuzzle(_currentPuzzle)
       setGivenPuzzle(_givenPuzzle)
       setSolution(_solution)
+      setNotes(JSON.parse(_notes))
       document.querySelector('.game-loader').classList.remove('show')
     } else {
-      
-      const signal = controller.signal
-      const game_url = getApiGameUrl(difficulty)
-      fetch(game_url, {signal})
+      newGame()
+    }
+  }, [difficulty])
+
+  const newGame = () => {
+    const game_url = getApiGameUrl(difficulty)
+      fetch(game_url)
       .then((response) => response.json())
       .then((data) => {
         setCurrentPuzzle(data.puzzle)
         setGivenPuzzle(data.puzzle)
         setSolution(data.solution)
+        setNotes(new Array(25).fill('00000'))
         document.querySelector('.game-loader').classList.remove('show')
       });
-    }
-
-    return () => {
-      controller.abort();
-    }
-  }, [])
+  }
 
   const keypressTile = (e) => {
     if("12345".includes(e.key)){ 
@@ -120,7 +120,7 @@ const Game = ({difficulty}) => {
     if ( givenPuzzle ) {
       setSelectedIsGiven(givenPuzzle.charAt(selectedTile) !== '0')
     }
-  }, [selectedTile])
+  }, [selectedTile, givenPuzzle])
 
   const click_tile = (i) => {
     setSelectedTile(i)
@@ -166,7 +166,7 @@ const Game = ({difficulty}) => {
           notes={notes}
         />
       </div>
-      {solved && (<div className='solved'>You solved it!</div>)}
+      {solved && (<div className='solved no-select'>You solved it! <span className='new-game' onClick={newGame}>New game</span></div>)}
       <div className="game-controls">
         <ControlArea
           onClick={i => clickControl(i)}

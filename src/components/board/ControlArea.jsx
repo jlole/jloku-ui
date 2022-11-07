@@ -24,7 +24,7 @@ const ControlArea = props => {
   buttons.push(renderNumber('N'));
   
   return (
-    <div className="control-numbers">{buttons}</div>
+    <div className="control-numbers no-select">{buttons}</div>
   )
 }
 

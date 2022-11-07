@@ -21,6 +21,7 @@ export function numberIsFullyUsed( number ) {
   return false
 }
 
+// eslint-disable-next-line
 String.prototype.replaceAt = function(index, replacement) {
   replacement = replacement + ''
   return this.substring(0, index) + replacement + this.substring(index + replacement.length);
