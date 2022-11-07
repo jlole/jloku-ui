@@ -167,7 +167,13 @@ const Game = ({difficulty}) => {
           notes={notes}
         />
       </div>
-      {solved && (<div className='solved no-select'>You solved it! <span className='new-game' onClick={newGame}>New game</span></div>)}
+      {solved && 
+        <div className='solved no-select'>
+          You solved it!
+          { difficulty !== 'daily' && 
+            <>&nbsp;<span className='new-game' onClick={newGame}>New game</span></>}
+        </div>
+      }
       <div className="game-controls">
         <ControlArea
           onClick={i => clickControl(i)}
