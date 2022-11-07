@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Jloku",
+  "name": "5x5 puzzle like sudoku",
   "icons": [
     {
       "src": "favicon.ico",
