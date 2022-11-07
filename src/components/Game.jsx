@@ -147,8 +147,8 @@ const Game = ({difficulty}) => {
   const clickControl = i => {
     if ( i === 'N' ) { // Toggle note mode
       setEditMode( editMode => ! editMode )
-    } else if ( selectedTile !== false && selectedIsGiven === false ) {
-      if ( i === 'E' && solved === false ) { // Erase field
+    } else if ( selectedTile !== false && selectedIsGiven === false && solved === false ) {
+      if ( i === 'E' ) { // Erase field
         setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, '0'))
         eraseNotesFromTile()
       } else if ("12345".includes(i)) {
