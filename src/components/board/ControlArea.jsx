@@ -11,6 +11,7 @@ const ControlArea = props => {
         editMode={props.editMode}
         selectedIsGiven={props.selectedIsGiven}
         selectedTile={props.selectedTile}
+        disabledNumbers={props.disabledNumbers}
       />
     );
   }

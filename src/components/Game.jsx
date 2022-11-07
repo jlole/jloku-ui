@@ -11,21 +11,30 @@ const Game = ({difficulty}) => {
 
   const [editMode, setEditMode] = useState(false);
   const [selectedTile, setSelectedTile] = useState(false);
-
   const [selectedIsGiven, setSelectedIsGiven] = useState(false);
-
   const [givenPuzzle, setGivenPuzzle] = useState(null);
   const [currentPuzzle, setCurrentPuzzle] = useState(null);
   const [solution, setSolution] = useState(null);
-  
+  const [disabledNumbers, setDisabledNumbers] = useState('');
   const [notes, setNotes] = useState(new Array(25).fill('00000'));
-
   const [solved, setSolved] = useState(false);
 
   useEffect( () => {
     if ( currentPuzzle && solution && currentPuzzle === solution ) {
-      alert('You solved it!')
       setSolved(true)
+    }
+
+    if ( currentPuzzle ) {
+      let disabledNumbers = ''
+      for( let i = 0; i < 5; i++ ) {
+        if ((currentPuzzle.split(i).length - 1) === 5) {
+          disabledNumbers += i + ''
+        }
+      }
+      setDisabledNumbers( disabledNumbers )
+      localStorage.setItem('givenPuzzle-' + difficulty, givenPuzzle)
+      localStorage.setItem('currentPuzzle-' + difficulty, currentPuzzle)
+      localStorage.setItem('solution-' + difficulty, solution)
     }
   }, [currentPuzzle])
 
@@ -43,18 +52,28 @@ const Game = ({difficulty}) => {
   // Load the puzzle
   useEffect( () => {
     const controller = new AbortController();
-    const signal = controller.signal
-    const game_url = getApiGameUrl(difficulty)
-    fetch(game_url, {signal})
-    .then((response) => response.json())
-    .then((data) => {
-      const puzzle = data.puzzle
-      const solution = data.solution
-      setCurrentPuzzle(puzzle)
-      setGivenPuzzle(puzzle)
-      setSolution(solution)
+    
+    let _givenPuzzle = localStorage.getItem('givenPuzzle-' + difficulty)
+    let _currentPuzzle = localStorage.getItem('currentPuzzle-' + difficulty)
+    let _solution = localStorage.getItem('solution-' + difficulty)
+    if ( _givenPuzzle && _currentPuzzle && _solution ) {
+      setCurrentPuzzle(_currentPuzzle)
+      setGivenPuzzle(_givenPuzzle)
+      setSolution(_solution)
       document.querySelector('.game-loader').classList.remove('show')
-    });
+    } else {
+      
+      const signal = controller.signal
+      const game_url = getApiGameUrl(difficulty)
+      fetch(game_url, {signal})
+      .then((response) => response.json())
+      .then((data) => {
+        setCurrentPuzzle(data.puzzle)
+        setGivenPuzzle(data.puzzle)
+        setSolution(data.solution)
+        document.querySelector('.game-loader').classList.remove('show')
+      });
+    }
 
     return () => {
       controller.abort();
@@ -127,7 +146,7 @@ const Game = ({difficulty}) => {
           let currentNote = notesCopy[selectedTile].charAt(i-1)
           notesCopy[selectedTile] = notesCopy[selectedTile].replaceAt(i - 1, currentNote === '0' ? i : '0' )
           setNotes( notesCopy )
-        } else {
+        } else if ( ! disabledNumbers.includes(i) ) {
           setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, i))
         }
       }
@@ -147,6 +166,7 @@ const Game = ({difficulty}) => {
           notes={notes}
         />
       </div>
+      {solved && (<div className='solved'>You solved it!</div>)}
       <div className="game-controls">
         <ControlArea
           onClick={i => clickControl(i)}
@@ -154,6 +174,7 @@ const Game = ({difficulty}) => {
           currentPuzzle={currentPuzzle}
           selectedIsGiven={selectedIsGiven}
           selectedTile={selectedTile}
+          disabledNumbers={disabledNumbers}
         />
       </div>
     </div>

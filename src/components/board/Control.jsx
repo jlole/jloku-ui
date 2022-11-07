@@ -7,7 +7,11 @@ function Control(props) {
   if ( props.id === 'N' ) content = <CiEdit/>
 
   let active = (props.editMode && props.id === 'N') ? ' active' : ''
-  let disabled = (props.selectedTile === false || props.selectedIsGiven) ? ' disabled' : ''
+
+  let noTileSelected = props.selectedTile === false
+  let selectedTileIsLocked = props.selectedIsGiven
+  let numberUsedUp = props.disabledNumbers.includes(props.id)
+  let disabled = (noTileSelected || selectedTileIsLocked || numberUsedUp) ? ' disabled' : ''
 
   return (
     <div className={'control-number ' + disabled + active} onClick={props.onClick} data-key={props.id} id={'number-'+props.id}>

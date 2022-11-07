@@ -55,7 +55,7 @@ ol, ul {
 .control-numbers {
   font-size: 2rem;
   display: flex;
-  margin-top: 30px;
+  margin-top: 15px;
 }
 
 .control-numbers .control-number{
@@ -237,4 +237,10 @@ nav ul li {
 
 .notes div.show {
   display: block;
+}
+
+.solved {
+  text-align: center;
+  padding: 5px;
+  font-size: 1.4rem;
 }
