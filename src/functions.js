@@ -8,8 +8,12 @@ export function getApiGameUrl( difficulty ) {
   }
 }
 
-export function numberIsFullyUsed( number ) {
-  return false
+export function formatDate(date) {
+  return [
+    date.getFullYear(),
+    (date.getMonth() + 1).toString().padStart(2, '0'),
+    (date.getDate()).toString().padStart(2, '0'),
+  ].join('-');
 }
 
 // eslint-disable-next-line

@@ -4,7 +4,7 @@ import Dialog from './board/Dialog';
 import Timer from "./board/Timer"
 import { useEffect, useState } from 'react';
 import ControlArea from './board/ControlArea'
-import {getApiGameUrl} from '../functions';
+import {getApiGameUrl, formatDate} from '../functions';
 
 
 const Game = ({difficulty}) => {
@@ -33,10 +33,15 @@ const Game = ({difficulty}) => {
       }
 
       setDisabledNumbers( disabledNumbers )
-      localStorage.setItem('givenPuzzle-' + difficulty, givenPuzzle)
-      localStorage.setItem('currentPuzzle-' + difficulty, currentPuzzle)
-      localStorage.setItem('solution-' + difficulty, solution)
-      localStorage.setItem('notes-' + difficulty, JSON.stringify(notes))
+
+      let code = difficulty
+      if ( difficulty === 'daily' ) {
+        code = code + '-' + formatDate(new Date())
+      }
+      localStorage.setItem(code + '-givenPuzzle', givenPuzzle)
+      localStorage.setItem(code + '-currentPuzzle', currentPuzzle)
+      localStorage.setItem(code + '-solution', solution)
+      localStorage.setItem(code + '-notes', JSON.stringify(notes))
     }
   }, [currentPuzzle, solution, difficulty, givenPuzzle, notes])
 
@@ -53,10 +58,16 @@ const Game = ({difficulty}) => {
 
   // Load the puzzle
   useEffect( () => {
-    let _givenPuzzle = localStorage.getItem('givenPuzzle-' + difficulty)
-    let _currentPuzzle = localStorage.getItem('currentPuzzle-' + difficulty)
-    let _solution = localStorage.getItem('solution-' + difficulty)
-    let _notes = localStorage.getItem('notes-' + difficulty)
+
+    let code = difficulty
+    if ( difficulty === 'daily' ) {
+      code = code + '-' + formatDate(new Date())
+    }
+
+    let _givenPuzzle = localStorage.getItem(code + '-givenPuzzle')
+    let _currentPuzzle = localStorage.getItem(code + '-currentPuzzle')
+    let _solution = localStorage.getItem(code + '-solution')
+    let _notes = localStorage.getItem(code + '-notes')
     if ( _givenPuzzle && _currentPuzzle && _solution && _notes ) {
       setCurrentPuzzle(_currentPuzzle)
       setGivenPuzzle(_givenPuzzle)
