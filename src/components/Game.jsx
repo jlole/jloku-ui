@@ -73,7 +73,6 @@ const Game = ({difficulty}) => {
       setGivenPuzzle(_givenPuzzle)
       setSolution(_solution)
       setNotes(JSON.parse(_notes))
-      document.querySelector('.game-loader').classList.remove('show')
     } else {
       newGame()
     }
@@ -88,7 +87,6 @@ const Game = ({difficulty}) => {
         setGivenPuzzle(data.puzzle)
         setSolution(data.solution)
         setNotes(new Array(25).fill('00000'))
-        document.querySelector('.game-loader').classList.remove('show')
       });
   }
 
@@ -167,7 +165,7 @@ const Game = ({difficulty}) => {
 
   return (
     <div className="game">
-      <Dialog />
+      <Dialog currentPuzzle={currentPuzzle}/>
       <Timer solved={solved} />
       <div className="game-board">
         <Board

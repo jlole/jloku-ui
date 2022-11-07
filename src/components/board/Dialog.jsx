@@ -2,9 +2,10 @@ import Loader from "./Loader"
 
 
 const Dialog = _ => {
+  let showLoader = _.currentPuzzle === null
   return (
     <>
-      <Loader />
+      <Loader showLoader={showLoader} />
     </>
   )
 }
