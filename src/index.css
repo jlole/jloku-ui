@@ -189,22 +189,6 @@ nav ul li {
   font-size: 1.5rem;
 }
 
-.game-loader {
-  display: none;
-}
-
-.game-loader.show {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: #0e0e0e;
-  z-index: 1;
-  opacity: 0.95;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .control-number.active {
   color: rgb(0, 143, 112);
 }
@@ -244,4 +228,24 @@ nav ul li {
       -ms-user-select: none; /* Internet Explorer/Edge */
           user-select: none; /* Non-prefixed version, currently
                                 supported by Chrome, Edge, Opera and Firefox */ 
+}
+
+.game-loader, .game-overlay {
+  display: none;
+}
+
+.game-loader.show, .game-overlay.show {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #0e0e0e;
+  z-index: 1;
+  opacity: 0.95;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.text-white {
+  color: white;
 }

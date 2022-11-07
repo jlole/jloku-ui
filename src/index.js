@@ -1,13 +1,12 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
-import Layout from "./pages/Layout";
-import Home from "./pages/Home";
-import Easy from "./pages/Easy";
-import Medium from "./pages/Medium";
-import Hard from "./pages/Hard";
-import Extreme from "./pages/Extreme";
-import Test from "./pages/Test";
-import NoPage from "./pages/NoPage";
+import Layout from './pages/Layout';
+import Home from './pages/Home';
+import Easy from './pages/Easy';
+import Medium from './pages/Medium';
+import Hard from './pages/Hard';
+import Extreme from './pages/Extreme';
+import NoPage from './pages/NoPage';
 import './index.css';
 
 export default function App() {
@@ -20,7 +19,6 @@ export default function App() {
           <Route path="medium" element={<Medium />} />
           <Route path="hard" element={<Hard />} />
           <Route path="extreme" element={<Extreme />} />
-          <Route path="test" element={<Test />} />
           <Route path="*" element={<NoPage />} />
         </Route>
       </Routes>

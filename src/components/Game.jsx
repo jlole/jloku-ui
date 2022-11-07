@@ -1,14 +1,11 @@
-import React from 'react';
-import Board from './board/Board'
-import Dialog from './board/Dialog';
-import Timer from "./board/Timer"
-import { useEffect, useState } from 'react';
+import { React, useEffect, useState, useCallback } from 'react';
+import { getApiGameUrl, formatDate, calculateNextTile } from '../functions';
 import ControlArea from './board/ControlArea'
-import {getApiGameUrl, formatDate} from '../functions';
-
+import Dialog from './board/Dialog';
+import Board from './board/Board'
+import Timer from "./board/Timer"
 
 const Game = ({difficulty}) => {
-
   const [editMode, setEditMode] = useState(false);
   const [selectedTile, setSelectedTile] = useState(false);
   const [selectedIsGiven, setSelectedIsGiven] = useState(false);
@@ -18,158 +15,152 @@ const Game = ({difficulty}) => {
   const [disabledNumbers, setDisabledNumbers] = useState('');
   const [notes, setNotes] = useState(new Array(25).fill('00000'));
   const [solved, setSolved] = useState(false);
+  const [overlay, setOverlay] = useState(true);
 
+  // Start a new game
+  const newGame = useCallback((dif) => {
+    const game_url = getApiGameUrl(dif);
+    fetch(game_url)
+      .then((response) => response.json())
+      .then((data) => {
+        setCurrentPuzzle(data.puzzle);
+        setGivenPuzzle(data.puzzle);
+        setSolution(data.solution);
+        setNotes(new Array(25).fill('00000'));
+        setSolved(false);
+        setOverlay(true);
+      });
+    }, []
+  );
+
+  // Rest notes in a tile
+  const eraseNotesFromTile = useCallback((selectedTile, notes) => {
+    let notesCopy = [...notes];
+    notesCopy[selectedTile] = '00000';
+    setNotes( notesCopy );
+  }, []);
+
+  // Check for solved puzzle
   useEffect( () => {
     if ( currentPuzzle && solution && currentPuzzle === solution ) {
-      setSolved(true)
+      setSolved(true);
+      setOverlay(false)
+    }
+  }, [currentPuzzle, solution]);
+
+  // Update local storage
+  useEffect( () => {
+    if ( currentPuzzle ) {
+      let code = difficulty === 'daily' ? difficulty + '-' + formatDate(new Date()) : difficulty;
+      if ( difficulty === 'daily' ) {
+        code = code + '-' + formatDate(new Date());
+      }
+      localStorage.setItem(code + '-currentPuzzle', currentPuzzle);
+      localStorage.setItem(code + '-givenPuzzle', givenPuzzle);
+      localStorage.setItem(code + '-solution', solution);
+      localStorage.setItem(code + '-notes', JSON.stringify(notes));
+    }
+  }, [difficulty, currentPuzzle, givenPuzzle, solution, notes]);
+
+  // Update the disabled controls
+  useEffect( () => {
+    if (selectedTile === false || selectedIsGiven === true) {
+      setDisabledNumbers( '12345' );
+      return;
     }
 
     if ( currentPuzzle ) {
-      let disabledNumbers = ''
+      let disabledNumbers = '';
       for( let i = 1; i <= 5; i++ ) {
-        if ((currentPuzzle.split(i).length - 1) === 5) {
-          disabledNumbers += i + ''
-        }
+        if ((currentPuzzle.split(i).length - 1) === 5) disabledNumbers += ( i + '');
       }
-
-      setDisabledNumbers( disabledNumbers )
-
-      let code = difficulty
-      if ( difficulty === 'daily' ) {
-        code = code + '-' + formatDate(new Date())
-      }
-      localStorage.setItem(code + '-givenPuzzle', givenPuzzle)
-      localStorage.setItem(code + '-currentPuzzle', currentPuzzle)
-      localStorage.setItem(code + '-solution', solution)
-      localStorage.setItem(code + '-notes', JSON.stringify(notes))
+      setDisabledNumbers( disabledNumbers );
     }
-  }, [currentPuzzle, solution, difficulty, givenPuzzle, notes])
+  }, [selectedIsGiven, selectedTile, currentPuzzle, disabledNumbers]);
 
-  // Keypress event listener
-  useEffect( () => {
-    const keyEventCallback = event => {
-      keypressTile( event )
-    };
-    document.addEventListener('keydown', keyEventCallback)
-    return () => {
-      document.removeEventListener('keydown', keyEventCallback);
-    }
-  })
 
   // Load the puzzle
   useEffect( () => {
-
-    let code = difficulty
-    if ( difficulty === 'daily' ) {
-      code = code + '-' + formatDate(new Date())
-    }
-
-    let _givenPuzzle = localStorage.getItem(code + '-givenPuzzle')
-    let _currentPuzzle = localStorage.getItem(code + '-currentPuzzle')
-    let _solution = localStorage.getItem(code + '-solution')
-    let _notes = localStorage.getItem(code + '-notes')
-    if ( _givenPuzzle && _currentPuzzle && _solution && _notes ) {
-      setCurrentPuzzle(_currentPuzzle)
-      setGivenPuzzle(_givenPuzzle)
-      setSolution(_solution)
-      setNotes(JSON.parse(_notes))
+    let code = difficulty === 'daily' ? difficulty + '-' + formatDate(new Date()) : difficulty;
+    let localCurrentPuzzle = localStorage.getItem(code + '-currentPuzzle');
+    let localGivenPuzzle = localStorage.getItem(code + '-givenPuzzle');
+    let localSolution = localStorage.getItem(code + '-solution');
+    let localNotes = localStorage.getItem(code + '-notes');
+    if ( localGivenPuzzle && localCurrentPuzzle && localSolution && localNotes ) {
+      setCurrentPuzzle(localCurrentPuzzle);
+      setGivenPuzzle(localGivenPuzzle);
+      setSolution(localSolution);
+      setNotes(JSON.parse(localNotes));
     } else {
-      newGame()
+      newGame(difficulty);
     }
-  }, [difficulty])
-
-  const newGame = () => {
-    const game_url = getApiGameUrl(difficulty)
-      fetch(game_url)
-      .then((response) => response.json())
-      .then((data) => {
-        setCurrentPuzzle(data.puzzle)
-        setGivenPuzzle(data.puzzle)
-        setSolution(data.solution)
-        setNotes(new Array(25).fill('00000'))
-      });
-  }
-
-  const keypressTile = (e) => {
-    if("12345".includes(e.key)){ 
-      clickControl(e.key)
-    } else if (e.key === 'Backspace') {
-      clickControl('E')
-    } else if (e.code === 'Space') {
-      clickControl('N')
-    }
-
-    if ( e.code === 'ArrowLeft' ) {
-      if ( selectedTile % 5 === 0 ) {
-        setSelectedTile( selectedTile => selectedTile + 4 )
-      } else {
-        setSelectedTile( selectedTile => selectedTile - 1 )
-      }
-    } else if ( e.code === 'ArrowRight' ) {
-      if ( selectedTile % 5 === 4 ) {
-        setSelectedTile( selectedTile => selectedTile - 4 )
-      } else {
-        setSelectedTile( selectedTile => selectedTile + 1 )
-      }
-    } else if ( e.code === 'ArrowUp' ) {
-      if ( selectedTile < 5 ) {
-        setSelectedTile( selectedTile => selectedTile + 20 )
-      } else {
-        setSelectedTile( selectedTile => selectedTile - 5 )
-      }
-    } else if ( e.code === 'ArrowDown' ) {
-      if ( selectedTile > 19 ) {
-        setSelectedTile( selectedTile => selectedTile - 20 )
-      } else {
-        setSelectedTile( selectedTile => selectedTile + 5 )
-      }
-    }
-  }
+  }, [difficulty, newGame]);
 
   useEffect( () => {
     if ( givenPuzzle ) {
-      setSelectedIsGiven(givenPuzzle.charAt(selectedTile) !== '0')
+      setSelectedIsGiven(givenPuzzle.charAt(selectedTile) !== '0');
     }
-  }, [selectedTile, givenPuzzle])
+  }, [selectedTile, givenPuzzle]);
 
-  const click_tile = (i) => {
-    setSelectedTile(i)
-  }
-
-  const eraseNotesFromTile = () => {
-    let notesCopy = [...notes]
-    notesCopy[selectedTile] = '00000'
-    setNotes( notesCopy )
-  }
-
-  const clickControl = i => {
+  const clickControl = useCallback(i => {
+    if ( i === 'R' ) { // Toggle note mode
+      setSolved(true);
+    }
     if ( i === 'N' ) { // Toggle note mode
-      setEditMode( editMode => ! editMode )
-    } else if ( selectedTile !== false && selectedIsGiven === false && solved === false ) {
-      if ( i === 'E' ) { // Erase field
-        setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, '0'))
-        eraseNotesFromTile()
+      setEditMode( editMode => ! editMode );
+    } else if ( ! solved ) {
+      if (i === 'E' && ! selectedIsGiven) { // Erase field
+        setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, '0'));
+        eraseNotesFromTile(selectedTile, notes);
       } else if ("12345".includes(i)) {
-        if ( editMode ) {
-          setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, '0'))
-          let notesCopy = [...notes]
-          let currentNote = notesCopy[selectedTile].charAt(i-1)
-          notesCopy[selectedTile] = notesCopy[selectedTile].replaceAt(i - 1, currentNote === '0' ? i : '0' )
-          setNotes( notesCopy )
+        if (editMode) {
+          setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, '0'));
+          let notesCopy = [...notes];
+          let currentNote = notesCopy[selectedTile].charAt(i-1);
+          notesCopy[selectedTile] = notesCopy[selectedTile].replaceAt(i - 1, currentNote === '0' ? i : '0' );
+          setNotes( notesCopy );
         } else if ( ! disabledNumbers.includes(i) ) {
-          setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, i))
+          setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, i));
         }
       }
     }
-  }
+  }, [disabledNumbers, editMode, eraseNotesFromTile, notes, selectedTile, solved, selectedIsGiven]);
+  
+  const keypressTile = useCallback((e) => {
+    let arrows = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'w', 'a', 's', 'd'];
+    if (arrows.includes(e.key)) {
+      setSelectedTile(calculateNextTile(selectedTile, e.key));
+      return;
+    }
 
+    let code = e.key;
+    if ("12345".includes(e.key)) code = e.key;
+    else if (e.key === 'Backspace') code = 'E';
+    else if (e.key === ' ') code = 'N';
+    
+    clickControl(code);
+  }, [selectedTile, clickControl]);
+
+  // Keypress event listener (Updates when different tile selected)
+  useEffect( () => {
+    const keyEventCallback = event => { keypressTile( event ) };
+    document.addEventListener('keydown', keyEventCallback);
+    return () => {
+      document.removeEventListener('keydown', keyEventCallback);
+    }
+  }, [keypressTile]);
+  
   return (
     <div className="game">
-      <Dialog currentPuzzle={currentPuzzle}/>
+      <Dialog 
+        currentPuzzle={currentPuzzle}
+        overlay={overlay}
+        setOverlay={i => setOverlay(i)}
+        />
       <Timer solved={solved} />
       <div className="game-board">
         <Board
-          onClick={i => click_tile(i)}
+          onClick={i => setSelectedTile(i)}
           currentPuzzle={currentPuzzle}
           givenPuzzle={givenPuzzle}
           selectedTile={selectedTile}
@@ -180,7 +171,7 @@ const Game = ({difficulty}) => {
         <div className='solved no-select'>
           You solved it!
           { difficulty !== 'daily' && 
-            <>&nbsp;<span className='new-game' onClick={newGame}>New game</span></>}
+            <>&nbsp;<span className='new-game' onClick={() => newGame(difficulty)}>New game</span></>}
         </div>
       }
       <div className="game-controls">
