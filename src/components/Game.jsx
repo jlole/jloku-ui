@@ -52,9 +52,6 @@ const Game = ({difficulty}) => {
   useEffect( () => {
     if ( currentPuzzle ) {
       let code = difficulty === 'daily' ? difficulty + '-' + formatDate(new Date()) : difficulty;
-      if ( difficulty === 'daily' ) {
-        code = code + '-' + formatDate(new Date());
-      }
       localStorage.setItem(code + '-currentPuzzle', currentPuzzle);
       localStorage.setItem(code + '-givenPuzzle', givenPuzzle);
       localStorage.setItem(code + '-solution', solution);
