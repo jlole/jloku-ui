@@ -6,75 +6,112 @@ import Board from './board/Board'
 import Timer from "./board/Timer"
 
 const Game = ({difficulty}) => {
-  const [editMode, setEditMode] = useState(false);
+  const [noteMode, setNoteMode] = useState(false);
   const [selectedTile, setSelectedTile] = useState(false);
-  const [selectedIsGiven, setSelectedIsGiven] = useState(false);
   const [givenPuzzle, setGivenPuzzle] = useState(null);
   const [currentPuzzle, setCurrentPuzzle] = useState(null);
-  const [solution, setSolution] = useState(null);
-  const [disabledNumbers, setDisabledNumbers] = useState('');
+  const [solvedPuzzle, setSolvedPuzzle] = useState(null);
   const [notes, setNotes] = useState(new Array(25).fill('00000'));
-  const [solved, setSolved] = useState(false);
-  const [overlay, setOverlay] = useState(true);
+  const [showOverlay, setShowOverlay] = useState(true);
 
-  // Start a new game
-  const newGame = useCallback((dif) => {
-    const game_url = getApiGameUrl(dif);
-    fetch(game_url)
+  var puzzleIsSolved = givenPuzzle && currentPuzzle && solvedPuzzle === currentPuzzle;
+  var tileIsGiven = givenPuzzle && givenPuzzle.charAt(selectedTile) !== '0';
+
+  var disabledNumbers = '';
+  if (selectedTile === false || tileIsGiven === true ) {
+    disabledNumbers = '12345';
+  } else if (currentPuzzle) {
+    for( let i = 1; i <= 5; i++ ) {
+      if ((currentPuzzle.split(i).length - 1) === 5) disabledNumbers += ( i + '');
+    }
+  }
+
+  // // Start a new game
+  const newGame = useCallback(() => {
+    const getNewPuzzleUrl = getApiGameUrl(difficulty);
+    fetch(getNewPuzzleUrl)
       .then((response) => response.json())
       .then((data) => {
         setCurrentPuzzle(data.puzzle);
         setGivenPuzzle(data.puzzle);
-        setSolution(data.solution);
+        setSolvedPuzzle(data.solution);
         setNotes(new Array(25).fill('00000'));
-        setSolved(false);
-        setOverlay(true);
+        setShowOverlay(true);
       });
-    }, []
+    }, [difficulty]
   );
 
-  // Rest notes in a tile
-  const eraseNotesFromTile = useCallback((selectedTile, notes) => {
+  // // Rest notes in a tile
+  const eraseNotesFromTile = useCallback((selectedTile) => {
     let notesCopy = [...notes];
     notesCopy[selectedTile] = '00000';
     setNotes( notesCopy );
-  }, []);
+  }, [notes]);
 
-  // Check for solved puzzle
-  useEffect( () => {
-    if ( currentPuzzle && solution && currentPuzzle === solution ) {
-      setSolved(true);
-      setOverlay(false)
+  const clickControl = useCallback(i => {
+    // Toggle note mode
+    if (i === 'N') {
+      setNoteMode(noteMode => ! noteMode);
     }
-  }, [currentPuzzle, solution]);
+    // Don't do anything else if the puzzle is solved
+    if (puzzleIsSolved) return;
+    // Erase tile
+    if (i === 'E' && ! tileIsGiven) {
+      setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, '0'));
+      eraseNotesFromTile(selectedTile);
+    }
+    let numberEntered = "12345".includes(i);
+    // Fill in number
+    if (numberEntered && ! noteMode && ! disabledNumbers.includes(i)) {
+      setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, i));
+      eraseNotesFromTile(selectedTile);
+    }
+    // Fill in note
+    if (numberEntered && noteMode && !tileIsGiven) {
+      setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, '0'));
+      let notesCopy = [...notes]
+      notesCopy[selectedTile] = notesCopy[selectedTile].replaceAt(i - 1, (notes[selectedTile].charAt(i-1) === '0' ? i : '0') );
+      setNotes( notesCopy );
+    }
+  }, [disabledNumbers, noteMode, eraseNotesFromTile, selectedTile, tileIsGiven, puzzleIsSolved, notes]);
+  
+  const keypressTile = useCallback((e) => {
+    let arrows = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'w', 'a', 's', 'd'];
+    if (arrows.includes(e.key)) {
+      setSelectedTile(calculateNextTile(selectedTile, e.key));
+      return;
+    }
+    if ("12345".includes(e.key)) clickControl(e.key);
+    else if (e.key === 'Backspace') clickControl('E');
+    else if (e.key === ' ') clickControl('N');
+  }, [selectedTile, clickControl]);
 
-  // Update local storage
+  // // Keypress event listener (Updates when different tile selected)
   useEffect( () => {
-    if ( currentPuzzle ) {
+    const keyEventCallback = event => { keypressTile( event ) };
+    document.addEventListener('keydown', keyEventCallback);
+    return () => {
+      document.removeEventListener('keydown', keyEventCallback);
+    }
+  }, [keypressTile]);
+
+  // // // Check for solved puzzle
+  useEffect( () => {
+    if (currentPuzzle && solvedPuzzle && currentPuzzle === solvedPuzzle) {
+      setShowOverlay(true)
+    }
+  }, [currentPuzzle, solvedPuzzle]);
+
+  // // Update local storage
+  useEffect( () => {
+    if (currentPuzzle) {
       let code = difficulty === 'daily' ? difficulty + '-' + formatDate(new Date()) : difficulty;
       localStorage.setItem(code + '-currentPuzzle', currentPuzzle);
       localStorage.setItem(code + '-givenPuzzle', givenPuzzle);
-      localStorage.setItem(code + '-solution', solution);
+      localStorage.setItem(code + '-solution', solvedPuzzle);
       localStorage.setItem(code + '-notes', JSON.stringify(notes));
     }
-  }, [difficulty, currentPuzzle, givenPuzzle, solution, notes]);
-
-  // Update the disabled controls
-  useEffect( () => {
-    if (selectedTile === false || selectedIsGiven === true) {
-      setDisabledNumbers( '12345' );
-      return;
-    }
-
-    if ( currentPuzzle ) {
-      let disabledNumbers = '';
-      for( let i = 1; i <= 5; i++ ) {
-        if ((currentPuzzle.split(i).length - 1) === 5) disabledNumbers += ( i + '');
-      }
-      setDisabledNumbers( disabledNumbers );
-    }
-  }, [selectedIsGiven, selectedTile, currentPuzzle, disabledNumbers]);
-
+  }, [difficulty, currentPuzzle, givenPuzzle, solvedPuzzle, notes]);
 
   // Load the puzzle
   useEffect( () => {
@@ -83,103 +120,34 @@ const Game = ({difficulty}) => {
     let localGivenPuzzle = localStorage.getItem(code + '-givenPuzzle');
     let localSolution = localStorage.getItem(code + '-solution');
     let localNotes = localStorage.getItem(code + '-notes');
-    if ( localGivenPuzzle && localCurrentPuzzle && localSolution && localNotes ) {
+    if (localGivenPuzzle && localCurrentPuzzle && localSolution && localNotes) {
       setCurrentPuzzle(localCurrentPuzzle);
       setGivenPuzzle(localGivenPuzzle);
-      setSolution(localSolution);
+      setSolvedPuzzle(localSolution);
       setNotes(JSON.parse(localNotes));
     } else {
-      newGame(difficulty);
+      newGame();
     }
-  }, [difficulty, newGame]);
+  }, [newGame, difficulty]);
 
-  useEffect( () => {
-    if ( givenPuzzle ) {
-      setSelectedIsGiven(givenPuzzle.charAt(selectedTile) !== '0');
-    }
-  }, [selectedTile, givenPuzzle]);
-
-  const clickControl = useCallback(i => {
-    if ( i === 'R' ) { // Toggle note mode
-      setSolved(true);
-    }
-    if ( i === 'N' ) { // Toggle note mode
-      setEditMode( editMode => ! editMode );
-    } else if ( ! solved ) {
-      if (i === 'E' && ! selectedIsGiven) { // Erase field
-        setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, '0'));
-        eraseNotesFromTile(selectedTile, notes);
-      } else if ("12345".includes(i)) {
-        if (editMode) {
-          setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, '0'));
-          let notesCopy = [...notes];
-          let currentNote = notesCopy[selectedTile].charAt(i-1);
-          notesCopy[selectedTile] = notesCopy[selectedTile].replaceAt(i - 1, currentNote === '0' ? i : '0' );
-          setNotes( notesCopy );
-        } else if ( ! disabledNumbers.includes(i) ) {
-          setCurrentPuzzle(currentPuzzle => currentPuzzle.replaceAt(selectedTile, i));
-        }
-      }
-    }
-  }, [disabledNumbers, editMode, eraseNotesFromTile, notes, selectedTile, solved, selectedIsGiven]);
-  
-  const keypressTile = useCallback((e) => {
-    let arrows = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'w', 'a', 's', 'd'];
-    if (arrows.includes(e.key)) {
-      setSelectedTile(calculateNextTile(selectedTile, e.key));
-      return;
-    }
-
-    let code = e.key;
-    if ("12345".includes(e.key)) code = e.key;
-    else if (e.key === 'Backspace') code = 'E';
-    else if (e.key === ' ') code = 'N';
-    
-    clickControl(code);
-  }, [selectedTile, clickControl]);
-
-  // Keypress event listener (Updates when different tile selected)
-  useEffect( () => {
-    const keyEventCallback = event => { keypressTile( event ) };
-    document.addEventListener('keydown', keyEventCallback);
-    return () => {
-      document.removeEventListener('keydown', keyEventCallback);
-    }
-  }, [keypressTile]);
-  
   return (
     <div className="game">
-      <Dialog 
-        currentPuzzle={currentPuzzle}
-        overlay={overlay}
-        setOverlay={i => setOverlay(i)}
-        />
-      <Timer solved={solved} />
+      {console.count('counter')}
+      <Dialog currentPuzzle={currentPuzzle} overlay={showOverlay} setOverlay={i => setShowOverlay(i)} />
+      <Timer setOverlay={i => setShowOverlay(i)} puzzleIsSolved={puzzleIsSolved} overlay={showOverlay} />
       <div className="game-board">
-        <Board
-          onClick={i => setSelectedTile(i)}
-          currentPuzzle={currentPuzzle}
-          givenPuzzle={givenPuzzle}
-          selectedTile={selectedTile}
-          notes={notes}
-        />
+        <Board onClick={i => setSelectedTile(i)} currentPuzzle={currentPuzzle} givenPuzzle={givenPuzzle} selectedTile={selectedTile} notes={notes} />
       </div>
-      {solved && 
+
+      {puzzleIsSolved && 
         <div className='solved no-select'>
           You solved it!
-          { difficulty !== 'daily' && 
+          {difficulty !== 'daily' && 
             <>&nbsp;<span className='new-game' onClick={() => newGame(difficulty)}>New game</span></>}
         </div>
       }
       <div className="game-controls">
-        <ControlArea
-          onClick={i => clickControl(i)}
-          editMode={editMode}
-          currentPuzzle={currentPuzzle}
-          selectedIsGiven={selectedIsGiven}
-          selectedTile={selectedTile}
-          disabledNumbers={disabledNumbers}
-        />
+        <ControlArea onClick={i => clickControl(i)} noteMode={noteMode} disabledNumbers={disabledNumbers} />
       </div>
     </div>
   );

@@ -1,29 +1,20 @@
-import React from 'react';
-import { useEffect } from 'react';
-import { useState } from 'react';
-import { BsPauseFill } from "react-icons/bs";
+import { React, useEffect, useState } from 'react';
+import { BsPauseFill } from 'react-icons/bs';
 
 function Timer(props) {
-
-  const [seconds, setSeconds] = useState(0)
-  const [timerRunning, setTimerRunning] = useState(true)
-
-  const toggleTimer = () => {
-    setTimerRunning(!timerRunning && props.solved === false);
-  }
+  const [seconds, setSeconds] = useState(0);
+  const [timerRunning, setTimerRunning] = useState(false);
 
   useEffect( () => {
-    if ( props.solved ) {
-      stopTimer()
+    if ( props.overlay === false && props.puzzleIsSolved === false ) {
+      setTimerRunning(true);
+    } else {
+      setTimerRunning(false);
     }
-  }, [props.solved])
+  }, [props.overlay, props.puzzleIsSolved]);
 
-  // const startTimer = () => {
-  //   setTimerRunning(true);
-  // }
-
-  const stopTimer = () => {
-    setTimerRunning(false);
+  const toggleTimer = () => {
+    props.setOverlay(true)
   }
 
   useEffect(() => {
@@ -39,8 +30,8 @@ function Timer(props) {
   }, [timerRunning, seconds]);
 
   const visualTime = ( seconds ) => {
-    let visualMinutes = Math.floor(seconds / 60)
-    let visualSeconds = seconds - visualMinutes * 60
+    let visualMinutes = Math.floor(seconds / 60);
+    let visualSeconds = seconds - visualMinutes * 60;
     return visualMinutes + ':' + visualSeconds.toString().padStart(2, '0');
   }
 

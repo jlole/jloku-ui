@@ -7,7 +7,10 @@ import Medium from './pages/Medium';
 import Hard from './pages/Hard';
 import Extreme from './pages/Extreme';
 import NoPage from './pages/NoPage';
-import './index.css';
+import './styles.scss';
+
+// @use 'styles/_colors.scss'; // assuming a styles directory under src/
+
 
 export default function App() {
   return (

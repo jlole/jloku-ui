@@ -8,7 +8,7 @@ const ControlArea = props => {
         key={i}
         id={i}
         onClick={() => props.onClick(i)}
-        editMode={props.editMode}
+        noteMode={props.noteMode}
         disabledNumbers={props.disabledNumbers}
       />
     );
@@ -19,7 +19,7 @@ const ControlArea = props => {
   buttons.push(renderNumber('E'));
   buttons.push(renderNumber('N'));
   
-  return ( <div className="control-numbers no-select">{buttons}</div> )
+  return ( <div className="control-area no-select">{buttons}</div> )
 }
 
 export default ControlArea

@@ -8,9 +8,7 @@ const Dialog = _ => {
   return (
     <>
       <Loader showLoader={showLoader} />
-      {/* <Overlay showLoader={showOverlay} 
-      setOverlay={(i) => _.setOverlay(i)}
-      /> */}
+      <Overlay showOverlay={showOverlay} setOverlay={() => _.setOverlay(false)} />
     </>
   )
 }

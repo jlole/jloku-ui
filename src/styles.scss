@@ -1,0 +1,233 @@
+$color-1: #01161e;
+$color-2: #124559;
+$color-3: #598392;
+$color-4: #aec3b0;
+$color-5: #eff6e0;
+$color-6: #008f70;
+$gray: #acacac;
+
+body {
+  background-color: $color-1;
+  font: 14px "Century Gothic", Futura, sans-serif;
+}
+
+.game {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+.game-board, .game-controls {
+  align-self: center;
+  position: relative;
+}
+
+.control-area {
+  font-size: 2.2rem;
+  display: flex;
+  margin-top: 15px;
+}
+
+.control-area .control-button {
+  color: $color-3;
+  padding: 10px;
+}
+
+.control-area .control-button.disabled {
+  color: $color-2;
+  cursor:default;
+}
+
+table.game-board td {
+  font-size: 1.8rem;
+  width: 80px;
+  height: 80px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.control-button{
+  cursor: pointer;
+}
+
+table.game-board, table.game-board td {
+  border: 1px solid $color-4;
+  border-collapse: collapse;
+  background-color: $color-2;
+  color: $color-4;
+}
+
+table.game-board .selected-tile {
+  background-color: lighten($color-2, 10);
+}
+
+table.game-board td:not(.given-number) {
+  color: $color-5;
+}
+
+table.game-board tr:nth-child(1) td {
+  border-top-width: 5px;
+}
+
+table.game-board tr:last-child td {
+  border-bottom-width: 5px;
+}
+
+table.game-board tr td:last-child {
+  border-right-width: 5px;
+}
+
+table.game-board tr td:first-child {
+  border-left-width: 5px;
+}
+
+table.game-board tr:first-child td:nth-child(3) {
+  border-right-width: 5px;
+}
+
+table.game-board tr:nth-child(3) td:first-child {
+  border-top-width: 5px;
+}
+
+table.game-board tr:nth-child(3) td:last-child {
+  border-bottom-width: 5px;
+}
+
+table.game-board tr:last-child td:nth-child(3) {
+  border-left-width: 5px;
+}
+
+table.game-board tr:nth-child(2) td:nth-child(3) {
+  border-top-width: 5px;
+  border-left-width: 5px;
+  border-right-width: 5px;
+}
+
+table.game-board tr:nth-child(2) td:nth-child(3) {
+  border-top-width: 5px;
+  border-left-width: 5px;
+  border-right-width: 5px;
+}
+
+table.game-board tr:nth-child(3) td:nth-child(2) {
+  border-top-width: 5px;
+  border-left-width: 5px;
+  border-bottom-width: 5px;
+}
+
+tr:nth-child(3) td:nth-child(4) {
+  border-top-width: 5px;
+  border-bottom-width: 5px;
+  border-right-width: 5px;
+}
+
+table.game-board tr:nth-child(4) td:nth-child(3) {
+  border-bottom-width: 5px;
+  border-left-width: 5px;
+  border-right-width: 5px;
+}
+
+.start-game {
+  background: #000000eb;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  justify-content: space-around;
+}
+
+nav ul li {
+  padding: 5px;
+}
+
+a{
+  color: $color-5 !important;
+}
+
+.game-timer {
+  display: flex;
+  justify-content: center;
+  padding: 5px;
+  align-items: center;
+  font-size: 1.2rem;
+}
+
+.game-timer-pause {
+  cursor: pointer;
+  display: flex;
+  font-size: 1.5rem;
+}
+
+.control-button.active {
+  color: $color-6;
+}
+
+.notes {
+  display: flex;
+  font-size: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  color: $gray;
+}
+
+.notes div {
+  width: 30%;
+}
+
+.notes div.show {
+  display: block;
+}
+
+.solved {
+  text-align: center;
+  padding: 5px;
+  font-size: 1.4rem;
+}
+
+.new-game {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.no-select {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+     -moz-user-select: none; /* Old versions of Firefox */
+      -ms-user-select: none; /* Internet Explorer/Edge */
+          user-select: none; /* Non-prefixed version, currently
+                                supported by Chrome, Edge, Opera and Firefox */ 
+}
+
+.game-loader, .game-overlay {
+  display: none;
+}
+
+.game-loader.show, .game-overlay.show {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #0e0e0e;
+  z-index: 1;
+  opacity: 0.95;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.text-white {
+  color: white;
+}
+
+.game-timer {
+  color: $color-4;
+}
