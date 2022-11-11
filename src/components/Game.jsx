@@ -118,7 +118,7 @@ const Game = ({difficulty}) => {
   useEffect( () => {
     let code = 'jloku-game-' + (difficulty === 'daily' ? difficulty + '-' + formatDate(new Date()) : difficulty);
     let localGame = JSON.parse(localStorage.getItem(code));
-    if (localGame.currentPuzzle && localGame.givenPuzzle && localGame.solvedPuzzle && localGame.notes && localGame.seconds) {
+    if (localGame && localGame.currentPuzzle && localGame.givenPuzzle && localGame.solvedPuzzle && localGame.notes && localGame.seconds) {
       setCurrentPuzzle(localGame.currentPuzzle);
       setGivenPuzzle(localGame.givenPuzzle);
       setSolvedPuzzle(localGame.solvedPuzzle);
