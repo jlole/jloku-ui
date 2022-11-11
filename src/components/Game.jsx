@@ -134,7 +134,7 @@ const Game = ({difficulty}) => {
     }
   }, [newGame, difficulty]);
 
-  const dailyShareText = 'I solved the ' + dateAtLoad + ' Jloku daily puzzle ' + visualTime(seconds) + "!\nhttps://jloku.com/";
+  const dailyShareText = 'I solved the ' + dateAtLoad + ' Jloku daily puzzle in ' + visualTime(seconds) + "!\nhttps://jloku.click/";
   const copyShareLink = useRef(null);
 
   const copiedShareLink = useCallback( (copiedText) => {
