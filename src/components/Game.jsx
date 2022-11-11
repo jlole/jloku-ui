@@ -13,6 +13,7 @@ const Game = ({difficulty}) => {
   const [solvedPuzzle, setSolvedPuzzle] = useState(null);
   const [notes, setNotes] = useState(new Array(25).fill('00000'));
   const [showOverlay, setShowOverlay] = useState(true);
+  const [seconds, setSeconds] = useState(null);
 
   var puzzleIsSolved = givenPuzzle && currentPuzzle && solvedPuzzle === currentPuzzle;
   var tileIsGiven = givenPuzzle && givenPuzzle.charAt(selectedTile) !== '0';
@@ -105,26 +106,29 @@ const Game = ({difficulty}) => {
   // // Update local storage
   useEffect( () => {
     if (currentPuzzle) {
-      let code = difficulty === 'daily' ? difficulty + '-' + formatDate(new Date()) : difficulty;
-      localStorage.setItem(code + '-currentPuzzle', currentPuzzle);
-      localStorage.setItem(code + '-givenPuzzle', givenPuzzle);
-      localStorage.setItem(code + '-solution', solvedPuzzle);
-      localStorage.setItem(code + '-notes', JSON.stringify(notes));
+      let code = 'jloku-game-' + (difficulty === 'daily' ? difficulty + '-' + formatDate(new Date()) : difficulty);
+      let localGame = {}
+      
+      localGame.currentPuzzle = currentPuzzle;
+      localGame.givenPuzzle = givenPuzzle;
+      localGame.solution = solvedPuzzle;
+      localGame.notes = notes;
+      localGame.seconds = seconds;
+      localStorage.setItem(code, JSON.stringify(localGame));
     }
-  }, [difficulty, currentPuzzle, givenPuzzle, solvedPuzzle, notes]);
+  }, [difficulty, currentPuzzle, givenPuzzle, solvedPuzzle, notes, seconds]);
 
   // Load the puzzle
   useEffect( () => {
-    let code = difficulty === 'daily' ? difficulty + '-' + formatDate(new Date()) : difficulty;
-    let localCurrentPuzzle = localStorage.getItem(code + '-currentPuzzle');
-    let localGivenPuzzle = localStorage.getItem(code + '-givenPuzzle');
-    let localSolution = localStorage.getItem(code + '-solution');
-    let localNotes = localStorage.getItem(code + '-notes');
-    if (localGivenPuzzle && localCurrentPuzzle && localSolution && localNotes) {
-      setCurrentPuzzle(localCurrentPuzzle);
-      setGivenPuzzle(localGivenPuzzle);
-      setSolvedPuzzle(localSolution);
-      setNotes(JSON.parse(localNotes));
+    let code = 'jloku-game-' + (difficulty === 'daily' ? difficulty + '-' + formatDate(new Date()) : difficulty);
+    let localGame = JSON.parse(localStorage.getItem(code));
+
+    if (localGame) {
+      setCurrentPuzzle(localGame.currentPuzzle);
+      setGivenPuzzle(localGame.givenPuzzle);
+      setSolvedPuzzle(localGame.solution);
+      setNotes(localGame.notes);
+      setSeconds(localGame.seconds);
     } else {
       newGame();
     }
@@ -133,7 +137,7 @@ const Game = ({difficulty}) => {
   return (
     <div className="game">
       <Dialog currentPuzzle={currentPuzzle} overlay={showOverlay} setOverlay={i => setShowOverlay(i)} />
-      <Timer setOverlay={i => setShowOverlay(i)} puzzleIsSolved={puzzleIsSolved} overlay={showOverlay} />
+      <Timer seconds={seconds} setSeconds={i => setSeconds(i)} setOverlay={i => setShowOverlay(i)} puzzleIsSolved={puzzleIsSolved} overlay={showOverlay} />
       <div className="game-board">
         <Board onClick={i => setSelectedTile(i)} currentPuzzle={currentPuzzle} givenPuzzle={givenPuzzle} selectedTile={selectedTile} notes={notes} />
       </div>
