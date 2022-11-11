@@ -1,3 +1,4 @@
+$text-color: white;
 $color-1: #01161e;
 $color-2: #124559;
 $color-3: #598392;
@@ -191,6 +192,7 @@ a{
   text-align: center;
   padding: 5px;
   font-size: 1.4rem;
+  color: $text-color;
 }
 
 .new-game {

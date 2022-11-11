@@ -26,12 +26,11 @@ export function calculateNextTile( selectedTile, key ) {
   }
 }
 
-
 export function getApiGameUrl (difficulty) {
   if (difficulty === 'daily') {
-    return '/api/get_daily_board';
+    return '/api/get-daily-puzzle';
   } else {
-    return '/api/generate_board?difficulty=' + difficulty;
+    return '/api/get-new-puzzle?difficulty=' + difficulty;
   }
 }
 

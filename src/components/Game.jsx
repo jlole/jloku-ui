@@ -132,7 +132,6 @@ const Game = ({difficulty}) => {
 
   return (
     <div className="game">
-      {console.count('counter')}
       <Dialog currentPuzzle={currentPuzzle} overlay={showOverlay} setOverlay={i => setShowOverlay(i)} />
       <Timer setOverlay={i => setShowOverlay(i)} puzzleIsSolved={puzzleIsSolved} overlay={showOverlay} />
       <div className="game-board">
