@@ -34,12 +34,18 @@ export function getApiGameUrl (difficulty) {
   }
 }
 
-export function formatDate (date) {
+export function formatDate (date, sep='-') {
   return [
-    date.getFullYear(),
-    (date.getMonth() + 1).toString().padStart(2, '0'),
     (date.getDate()).toString().padStart(2, '0'),
-  ].join('-');
+    (date.getMonth() + 1).toString().padStart(2, '0'),
+    date.getFullYear(),
+  ].join(sep);
+}
+
+export function visualTime (seconds) {
+  let visualMinutes = Math.floor(seconds / 60);
+  let visualSeconds = seconds - visualMinutes * 60;
+  return visualMinutes + ':' + visualSeconds.toString().padStart(2, '0');
 }
 
 // eslint-disable-next-line

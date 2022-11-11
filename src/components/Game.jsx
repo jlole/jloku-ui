@@ -1,5 +1,6 @@
-import { React, useEffect, useState, useCallback } from 'react';
-import { getApiGameUrl, formatDate, calculateNextTile } from '../functions';
+import { React, useEffect, useState, useCallback, useRef } from 'react';
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { getApiGameUrl, formatDate, calculateNextTile, visualTime } from '../functions';
 import ControlArea from './board/ControlArea'
 import Dialog from './board/Dialog';
 import Board from './board/Board'
@@ -12,8 +13,10 @@ const Game = ({difficulty}) => {
   const [currentPuzzle, setCurrentPuzzle] = useState(null);
   const [solvedPuzzle, setSolvedPuzzle] = useState(null);
   const [notes, setNotes] = useState(new Array(25).fill('00000'));
-  const [showOverlay, setShowOverlay] = useState(true);
+  const [showOverlay, setShowOverlay] = useState(false);
   const [seconds, setSeconds] = useState(null);
+  const [dateAtLoad] = useState(formatDate(new Date(), '-'));
+  const [copiedText, setCopiedText] = useState('share');
 
   var puzzleIsSolved = givenPuzzle && currentPuzzle && solvedPuzzle === currentPuzzle;
   var tileIsGiven = givenPuzzle && givenPuzzle.charAt(selectedTile) !== '0';
@@ -27,7 +30,7 @@ const Game = ({difficulty}) => {
     }
   }
 
-  // // Start a new game
+  // Start a new game
   const newGame = useCallback(() => {
     const getNewPuzzleUrl = getApiGameUrl(difficulty);
     fetch(getNewPuzzleUrl)
@@ -42,7 +45,7 @@ const Game = ({difficulty}) => {
     }, [difficulty]
   );
 
-  // // Rest notes in a tile
+  // Rest notes in a tile
   const eraseNotesFromTile = useCallback((selectedTile) => {
     let notesCopy = [...notes];
     notesCopy[selectedTile] = '00000';
@@ -87,7 +90,7 @@ const Game = ({difficulty}) => {
     else if (e.key === ' ') clickControl('N');
   }, [selectedTile, clickControl]);
 
-  // // Keypress event listener (Updates when different tile selected)
+  // Keypress event listener (Updates when different tile selected)
   useEffect( () => {
     const keyEventCallback = event => { keypressTile( event ) };
     document.addEventListener('keydown', keyEventCallback);
@@ -96,22 +99,15 @@ const Game = ({difficulty}) => {
     }
   }, [keypressTile]);
 
-  // // // Check for solved puzzle
-  useEffect( () => {
-    if (currentPuzzle && solvedPuzzle && currentPuzzle === solvedPuzzle) {
-      setShowOverlay(true)
-    }
-  }, [currentPuzzle, solvedPuzzle]);
-
-  // // Update local storage
+  // Update local storage
   useEffect( () => {
     if (currentPuzzle) {
       let code = 'jloku-game-' + (difficulty === 'daily' ? difficulty + '-' + formatDate(new Date()) : difficulty);
       let localGame = {}
-      
+
       localGame.currentPuzzle = currentPuzzle;
       localGame.givenPuzzle = givenPuzzle;
-      localGame.solution = solvedPuzzle;
+      localGame.solvedPuzzle = solvedPuzzle;
       localGame.notes = notes;
       localGame.seconds = seconds;
       localStorage.setItem(code, JSON.stringify(localGame));
@@ -122,17 +118,33 @@ const Game = ({difficulty}) => {
   useEffect( () => {
     let code = 'jloku-game-' + (difficulty === 'daily' ? difficulty + '-' + formatDate(new Date()) : difficulty);
     let localGame = JSON.parse(localStorage.getItem(code));
-
-    if (localGame) {
+    if (localGame.currentPuzzle && localGame.givenPuzzle && localGame.solvedPuzzle && localGame.notes && localGame.seconds) {
       setCurrentPuzzle(localGame.currentPuzzle);
       setGivenPuzzle(localGame.givenPuzzle);
-      setSolvedPuzzle(localGame.solution);
+      setSolvedPuzzle(localGame.solvedPuzzle);
       setNotes(localGame.notes);
       setSeconds(localGame.seconds);
+      var puzzleIsSolved = localGame.solvedPuzzle === localGame.currentPuzzle;
+      if (! puzzleIsSolved) {
+        setShowOverlay(true);
+      }
     } else {
       newGame();
+      setShowOverlay(true);
     }
   }, [newGame, difficulty]);
+
+  const dailyShareText = 'I solved the ' + dateAtLoad + ' Jloku daily puzzle ' + visualTime(seconds) + "!\nhttps://jloku.com/";
+  const copyShareLink = useRef(null);
+
+  const copiedShareLink = useCallback( (copiedText) => {
+    let oldText = copiedText;
+    setCopiedText('copied');
+    let interval = setInterval(() => {
+      setCopiedText(oldText);
+      clearInterval(interval)
+    }, 1500);
+  }, [])
 
   return (
     <div className="game">
@@ -144,14 +156,21 @@ const Game = ({difficulty}) => {
 
       {puzzleIsSolved && 
         <div className='solved no-select'>
-          You solved it!
+          You solved the daily puzzle!<br/>
+          {difficulty === 'daily' && 
+            <CopyToClipboard text={dailyShareText} onCopy={() => copiedShareLink(copiedText)}>
+              <span className='copy-share-link' ref={copyShareLink}>{copiedText}</span>
+            </CopyToClipboard>
+            }
           {difficulty !== 'daily' && 
-            <>&nbsp;<span className='new-game' onClick={() => newGame(difficulty)}>New game</span></>}
+            <span className='new-game' onClick={() => newGame(difficulty)}>New game</span>}
         </div>
       }
-      <div className="game-controls">
-        <ControlArea onClick={i => clickControl(i)} noteMode={noteMode} disabledNumbers={disabledNumbers} />
-      </div>
+      {! puzzleIsSolved &&
+        <div className="game-controls">
+          <ControlArea onClick={i => clickControl(i)} noteMode={noteMode} disabledNumbers={disabledNumbers} />
+        </div>
+      }
     </div>
   );
 }

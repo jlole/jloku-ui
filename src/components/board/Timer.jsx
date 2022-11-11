@@ -1,5 +1,6 @@
 import { React, useEffect, useState } from 'react';
 import { BsPauseFill } from 'react-icons/bs';
+import { visualTime } from '../../functions';
 
 function Timer(props) {
   const [timerRunning, setTimerRunning] = useState(false);
@@ -26,17 +27,16 @@ function Timer(props) {
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [timerRunning, props.seconds]);
-
-  const visualTime = ( seconds ) => {
-    let visualMinutes = Math.floor(seconds / 60);
-    let visualSeconds = seconds - visualMinutes * 60;
-    return visualMinutes + ':' + visualSeconds.toString().padStart(2, '0');
-  }
+  }, [timerRunning, props]);
 
   return (
     <div className='game-timer no-select'>
-      {visualTime(props.seconds)} <span className='game-timer-pause'><BsPauseFill onClick={() => toggleTimer()} /></span>
+      {visualTime(props.seconds)}
+      {! props.puzzleIsSolved &&
+        <span className='game-timer-pause'>
+          <BsPauseFill onClick={() => toggleTimer()} />
+        </span>
+      }
     </div>
   );
 }
