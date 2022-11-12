@@ -156,14 +156,18 @@ const Game = ({difficulty}) => {
 
       {puzzleIsSolved && 
         <div className='solved no-select'>
-          You solved the daily puzzle!<br/>
           {difficulty === 'daily' && 
-            <CopyToClipboard text={dailyShareText} onCopy={() => copiedShareLink(copiedText)}>
-              <span className='copy-share-link' ref={copyShareLink}>{copiedText}</span>
-            </CopyToClipboard>
+            <div>You solved the daily puzzle!<br/>
+              <CopyToClipboard text={dailyShareText} onCopy={() => copiedShareLink(copiedText)}>
+                <span className='copy-share-link' ref={copyShareLink}>{copiedText}</span>
+              </CopyToClipboard>
+            </div>
             }
           {difficulty !== 'daily' && 
-            <span className='new-game' onClick={() => newGame(difficulty)}>New game</span>}
+            <div>You solved the puzzle!<br/>
+              <span className='new-game' onClick={() => newGame(difficulty)}>New game</span>
+            </div>
+          }  
         </div>
       }
       {! puzzleIsSolved &&
