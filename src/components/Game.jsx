@@ -17,7 +17,7 @@ const Game = ({difficulty}) => {
   const [currentStep, setCurrentStep] = useState(0);
 
   const current = history[currentStep]
-  const puzzleIsSolved = history.givenPuzzle && current.currentPuzzle && history.solvedPuzzle === current.currentPuzzle;
+  const puzzleIsSolved = history.givenPuzzle && current.currentPuzzle && history.solution === current.currentPuzzle;
   const tileIsGiven = history.givenPuzzle && history.givenPuzzle.charAt(selectedTile) !== '0';
 
   var disabledNumbers = '';
@@ -116,11 +116,11 @@ const Game = ({difficulty}) => {
   // Update local storage
   useEffect( () => {
     if (current['currentPuzzle']) {
-      let code = 'jloku-game-' + (difficulty === 'daily' ? difficulty + '-' + formatDate(new Date()) : difficulty);
+      let code = 'jloku-a-' + (difficulty === 'daily' ? difficulty + '-' + formatDate(new Date()) : difficulty);
       let localGame = {}
       localGame.currentPuzzle = current['currentPuzzle'];
       localGame.givenPuzzle = history['givenPuzzle'];
-      localGame.solvedPuzzle = history['solution'];
+      localGame.solution = history['solution'];
       localGame.notes = current.notes;
       localGame.seconds = seconds;
       localStorage.setItem(code, JSON.stringify(localGame));
@@ -129,13 +129,13 @@ const Game = ({difficulty}) => {
 
   // Load the puzzle
   useEffect( () => {
-    let code = 'jloku-game-' + (difficulty === 'daily' ? difficulty + '-' + formatDate(new Date()) : difficulty);
+    let code = 'jloku-a-' + (difficulty === 'daily' ? difficulty + '-' + formatDate(new Date()) : difficulty);
     let localGame = JSON.parse(localStorage.getItem(code));
-    if (localGame && localGame.currentPuzzle && localGame.givenPuzzle && localGame.solvedPuzzle && localGame.notes) {
-      setHistory({"givenPuzzle": localGame.givenPuzzle, "solution": localGame.solvedPuzzle, 0: {'currentPuzzle': localGame.currentPuzzle, 'notes': localGame.notes}});
+    if (localGame && localGame.currentPuzzle && localGame.givenPuzzle && localGame.solution && localGame.notes) {
+      setHistory({"givenPuzzle": localGame.givenPuzzle, "solution": localGame.solution, 0: {'currentPuzzle': localGame.currentPuzzle, 'notes': localGame.notes}});
       setCurrentStep(0);
       setSeconds(localGame.seconds);
-      var puzzleIsSolved = localGame.solvedPuzzle === localGame.currentPuzzle;
+      var puzzleIsSolved = localGame.solution === localGame.currentPuzzle;
       if (! puzzleIsSolved) {
         setShowOverlay(true);
       }
