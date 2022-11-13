@@ -15,6 +15,7 @@ const ControlArea = props => {
   }
 
   let buttons = [];
+  buttons.push(renderNumber('U'));
   for (let i = 1; i <= 5; i++) { buttons.push(renderNumber(i)); }
   buttons.push(renderNumber('E'));
   buttons.push(renderNumber('N'));
