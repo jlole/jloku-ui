@@ -48,6 +48,12 @@ export function visualTime (seconds) {
   return visualMinutes + ':' + visualSeconds.toString().padStart(2, '0');
 }
 
+export function updateHistory ( history, step, currentPuzzle, notes, useClone = true) {
+  let newHistory = useClone ? {...history} : history;
+  newHistory[step + 1] = {'currentPuzzle': currentPuzzle, 'notes': notes}
+  return newHistory;
+}
+
 // eslint-disable-next-line
 String.prototype.replaceAt = function(index, replacement) {
   replacement = replacement + ''
