@@ -2,13 +2,13 @@ import { React, useEffect, useState, useCallback, useRef } from 'react';
 import { getApiGameUrl, formatDate, calculateNextTile, visualTime, updateHistory } from '../functions';
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import ControlArea from './board/ControlArea'
-import Dialog from './board/Dialog';
+import Overlay from './board/Overlay';
 import Board from './board/Board'
 import Timer from "./board/Timer"
 
 const Game = ({difficulty}) => {
   const [noteMode, setNoteMode] = useState(false);
-  const [showOverlay, setShowOverlay] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(true);
   const [seconds, setSeconds] = useState(null);
   const [dateAtLoad] = useState(formatDate(new Date(), '-'));
   const [copiedText, setCopiedText] = useState('share');
@@ -17,7 +17,7 @@ const Game = ({difficulty}) => {
   const [currentStep, setCurrentStep] = useState(0);
 
   const current = history[currentStep]
-  const puzzleIsSolved = history.givenPuzzle && current.currentPuzzle && history.solution === current.currentPuzzle;
+  const puzzleIsSolved = history.solution && current.currentPuzzle && history.solution === current.currentPuzzle;
   const tileIsGiven = history.givenPuzzle && history.givenPuzzle.charAt(selectedTile) !== '0';
 
   var disabledNumbers = '';
@@ -38,6 +38,7 @@ const Game = ({difficulty}) => {
     fetch(getNewPuzzleUrl)
       .then((response) => response.json())
       .then((data) => {
+        setSeconds(null);
         setCurrentStep(0);
         setHistory({"givenPuzzle": data.puzzle, "solution": data.solution, 0: {'currentPuzzle': data.puzzle, 'notes': new Array(25).fill('00000')}});
         setShowOverlay(true);
@@ -55,7 +56,7 @@ const Game = ({difficulty}) => {
   const clickControl = useCallback(i => {
     // Toggle note mode
     if (i === 'N') {
-      setNoteMode(noteMode => ! noteMode);
+      setNoteMode(noteMode => !noteMode);
       return;
     }
     // Undo
@@ -71,7 +72,7 @@ const Game = ({difficulty}) => {
     if (puzzleIsSolved) return;
 
     // Erase tile
-    if (i === 'E' && ! tileIsGiven) {
+    if (i === 'E' && !tileIsGiven) {
       setHistory(updateHistory(history, currentStep, eraseTile, eraseNote));
       setCurrentStep(currentStep => currentStep + 1);
     }
@@ -79,7 +80,7 @@ const Game = ({difficulty}) => {
     let numberEntered = "12345".includes(i);
 
     // Fill in number
-    if (numberEntered && ! noteMode && ! disabledNumbers.includes(i)) {
+    if (numberEntered && !noteMode && !disabledNumbers.includes(i)) {
       setHistory(updateHistory(history, currentStep, current.currentPuzzle.replaceAt(selectedTile, i), eraseNote));
       setCurrentStep(currentStep => currentStep + 1);
     }
@@ -136,9 +137,7 @@ const Game = ({difficulty}) => {
       setCurrentStep(0);
       setSeconds(localGame.seconds);
       var puzzleIsSolved = localGame.solution === localGame.currentPuzzle;
-      if (! puzzleIsSolved) {
-        setShowOverlay(true);
-      }
+      setShowOverlay(!puzzleIsSolved);
     } else {
       newGame();
       setShowOverlay(true);
@@ -160,7 +159,7 @@ const Game = ({difficulty}) => {
 
   return (
     <div className="game">
-      <Dialog currentPuzzle={current.currentPuzzle} overlay={showOverlay} setOverlay={i => setShowOverlay(i)} />
+      <Overlay seconds={seconds} currentPuzzle={current.currentPuzzle} overlay={showOverlay} setOverlay={i => setShowOverlay(i)} difficulty={difficulty} />
       <Timer seconds={seconds} setSeconds={i => setSeconds(i)} setOverlay={i => setShowOverlay(i)} puzzleIsSolved={puzzleIsSolved} overlay={showOverlay} />
       <div className="game-board">
         <Board onClick={i => setSelectedTile(i)} currentPuzzle={current.currentPuzzle} givenPuzzle={history.givenPuzzle} selectedTile={selectedTile} notes={current.notes} />
@@ -182,7 +181,7 @@ const Game = ({difficulty}) => {
           }  
         </div>
       }
-      {! puzzleIsSolved &&
+      {!puzzleIsSolved &&
         <div className="game-controls">
           <ControlArea onClick={i => clickControl(i)} noteMode={noteMode} disabledNumbers={disabledNumbers} />
         </div>

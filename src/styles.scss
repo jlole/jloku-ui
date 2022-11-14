@@ -130,16 +130,6 @@ table.game-board tr:nth-child(4) td:nth-child(3) {
   border-right-width: 5px;
 }
 
-.start-game {
-  background: #000000eb;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1;
-}
-
 nav ul {
   display: flex;
   list-style: none;
@@ -211,17 +201,16 @@ a{
                                 supported by Chrome, Edge, Opera and Firefox */ 
 }
 
-.game-loader, .game-overlay {
+.game-overlay {
   display: none;
 }
 
-.game-loader.show, .game-overlay.show {
+.game-overlay.show {
   position: absolute;
   width: 100%;
   height: 100%;
-  background: #0e0e0e;
+  background: #0e0e0edf;
   z-index: 1;
-  opacity: 0.95;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -238,4 +227,22 @@ a{
 .copy-share-link {
   text-decoration: underline;
   cursor: pointer;
+}
+
+.btn {
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  background-color: white; 
+  color: $color-6; 
+  border: 4px solid $color-6;
+  border-radius: 20px;
+}
+
+.text-center {
+  text-align: center;
 }
