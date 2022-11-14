@@ -35,13 +35,14 @@ const Game = ({difficulty}) => {
   // Start a new game
   const newGame = useCallback(() => {
     const getNewPuzzleUrl = getApiGameUrl(difficulty);
+    setHistory({0:{notes:new Array(25).fill('00000')}});
+    setShowOverlay(true);
+    setCurrentStep(0);
+    setSeconds(null);
     fetch(getNewPuzzleUrl)
       .then((response) => response.json())
       .then((data) => {
-        setSeconds(null);
-        setCurrentStep(0);
         setHistory({"givenPuzzle": data.puzzle, "solution": data.solution, 0: {'currentPuzzle': data.puzzle, 'notes': new Array(25).fill('00000')}});
-        setShowOverlay(true);
       });
     }, [difficulty]
   );
