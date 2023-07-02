@@ -141,6 +141,10 @@ nav ul li {
   padding: 5px;
 }
 
+nav ul li.active a{
+  color: $color-6 !important;
+}
+
 a{
   color: $color-5 !important;
 }
