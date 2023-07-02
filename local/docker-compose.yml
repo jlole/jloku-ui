@@ -1,0 +1,40 @@
+version: '3.7'
+
+services:
+  jloku-nginx:
+    image: nginx:1.25.1
+    ports:
+      - 80:80
+    volumes:
+      - ./jloku.conf:/etc/nginx/conf.d/jloku.conf
+  jloku-ui:
+    image: node:20.3
+    working_dir: /home/node/app
+    volumes:
+      - ../:/home/node/app
+    command: bash -c "npm install && npm start"
+  jloku-api:
+    image: jloku-api
+    environment:
+      - TZ=Europe/Amsterdam
+    env_file:
+      - .env
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 0
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 120s
+    healthcheck:
+      test: curl --fail http://localhost:5000/api/ || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 5

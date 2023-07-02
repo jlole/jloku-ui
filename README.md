@@ -2,22 +2,11 @@
 
 5x5 puzzle
 
-
-### `npm start`
-
-Runs the app in the development mode.\
-
-
-
-
-
-
-
-
 ## Available Scripts
 
 In the project directory, you can run:
 
+### `npm install`
 ### `npm start`
 
 Runs the app in the development mode.\
@@ -39,3 +28,19 @@ Your app is ready to be deployed!
 Push to main branch \
 If the runner has stopped then cd into the runner directory on the server and run
 `./svc.sh start`
+
+# Local Setup
+
+## Build jloku-api
+`cd jloku-api` \
+`docker build -t jloku-api .`
+
+## Hosts file
+Add `jloku.local` to `/etc/hosts`
+
+## Docker compose
+`cd jloku-api` \
+`cd local` \
+`cp .env.example .env` \
+replace the values in the `.env` file \
+`docker-compose up -d`
