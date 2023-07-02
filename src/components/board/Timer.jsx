@@ -23,11 +23,9 @@ function Timer(props) {
       interval = setInterval(() => {
         props.setSeconds(seconds => seconds + 1);
       }, 1000);
-    } else if (!timerRunning && props.seconds !== 0) {
-      clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [timerRunning, props]);
+  }, [timerRunning]);
 
   return (
     <div className='game-timer no-select'>
