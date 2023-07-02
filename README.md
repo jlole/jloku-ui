@@ -24,7 +24,7 @@ The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
 
-## Deploying
+# Deploying
 Push to main branch \
 If the runner has stopped then cd into the runner directory on the server and run
 `./svc.sh start`
@@ -41,6 +41,5 @@ Add `jloku.local` to `/etc/hosts`
 ## Docker compose
 `cd jloku-api` \
 `cd local` \
-`cp .env.example .env` \
-replace the values in the `.env` file \
-`docker-compose up -d`
+`docker-compose up -d` \
+`docker exec local-jloku-api-1 python update_daily.py`

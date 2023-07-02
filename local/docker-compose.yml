@@ -38,3 +38,8 @@ services:
       interval: 1m
       timeout: 10s
       retries: 5
+  jloku-mongo:
+    image: mongo:7.0-rc-jammy
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
