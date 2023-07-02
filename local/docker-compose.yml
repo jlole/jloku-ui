@@ -17,8 +17,6 @@ services:
     image: jloku-api
     environment:
       - TZ=Europe/Amsterdam
-    env_file:
-      - .env
     deploy:
       replicas: 2
       update_config:
